@@ -1,13 +1,23 @@
 :root {
   --bg-top: #21111f;
   --bg-mid: #5f2940;
+  --bg-accent: #a84f4a;
   --bg-bottom: #f08c4e;
+  --horizon-glow: rgba(255, 147, 83, 0.82);
+  --horizon-haze: rgba(255, 205, 142, 0.32);
   --sun-core: #ffd08a;
-  --sun-aura: rgba(255, 195, 125, 0.5);
+  --sun-mid: rgba(255, 209, 138, 0.95);
+  --sun-fade: rgba(255, 164, 104, 0.62);
+  --glow-core: rgba(255, 207, 142, 0.45);
+  --glow-fade: rgba(255, 170, 103, 0.24);
+  --overlay-top: rgba(255, 255, 255, 0.03);
+  --overlay-left: rgba(255, 244, 231, 0.08);
+  --overlay-right: rgba(255, 196, 138, 0.1);
   --text-main: #fff6ea;
   --text-soft: rgba(255, 246, 234, 0.8);
   --card-border: rgba(255, 244, 229, 0.14);
-  --card-bg: rgba(34, 15, 30, 0.22);
+  --card-bg-top: rgba(47, 18, 35, 0.34);
+  --card-bg-bottom: rgba(29, 12, 27, 0.22);
   --shadow: 0 24px 80px rgba(20, 6, 19, 0.45);
   --focus: #ffe1a8;
 }
@@ -33,9 +43,9 @@ body {
   font-family: "Manrope", sans-serif;
   color: var(--text-main);
   background:
-    radial-gradient(circle at 50% 72%, rgba(255, 205, 142, 0.32), transparent 18%),
-    radial-gradient(circle at 50% 100%, rgba(255, 147, 83, 0.82), transparent 30%),
-    linear-gradient(180deg, var(--bg-top) 0%, var(--bg-mid) 52%, #a84f4a 74%, var(--bg-bottom) 100%);
+    radial-gradient(circle at 50% 72%, var(--horizon-haze), transparent 18%),
+    radial-gradient(circle at 50% 100%, var(--horizon-glow), transparent 30%),
+    linear-gradient(180deg, var(--bg-top) 0%, var(--bg-mid) 52%, var(--bg-accent) 74%, var(--bg-bottom) 100%);
   overflow: hidden;
 }
 
@@ -49,9 +59,9 @@ body::after {
 
 body::before {
   background:
-    linear-gradient(180deg, rgba(255, 255, 255, 0.03), transparent 35%),
-    radial-gradient(circle at 20% 15%, rgba(255, 244, 231, 0.08), transparent 18%),
-    radial-gradient(circle at 80% 22%, rgba(255, 196, 138, 0.1), transparent 20%);
+    linear-gradient(180deg, var(--overlay-top), transparent 35%),
+    radial-gradient(circle at 20% 15%, var(--overlay-left), transparent 18%),
+    radial-gradient(circle at 80% 22%, var(--overlay-right), transparent 20%);
   mix-blend-mode: screen;
 }
 
@@ -102,7 +112,7 @@ body::after {
   border-radius: 50%;
   transform: translateX(-50%);
   background:
-    radial-gradient(circle at 50% 45%, var(--sun-core) 0%, rgba(255, 209, 138, 0.95) 18%, rgba(255, 164, 104, 0.62) 45%, rgba(255, 164, 104, 0) 74%);
+    radial-gradient(circle at 50% 45%, var(--sun-core) 0%, var(--sun-mid) 18%, var(--sun-fade) 45%, rgba(255, 164, 104, 0) 74%);
   filter: blur(6px);
   opacity: 0.95;
 }
@@ -114,7 +124,7 @@ body::after {
   height: min(42vh, 360px);
   transform: translateX(-50%);
   background:
-    radial-gradient(ellipse at center, rgba(255, 207, 142, 0.45) 0%, rgba(255, 170, 103, 0.24) 34%, rgba(255, 170, 103, 0) 72%);
+    radial-gradient(ellipse at center, var(--glow-core) 0%, var(--glow-fade) 34%, rgba(255, 170, 103, 0) 72%);
   filter: blur(22px);
 }
 
@@ -125,7 +135,7 @@ body::after {
   padding: clamp(2rem, 5vw, 4rem) clamp(1.4rem, 4vw, 3.2rem);
   border: 1px solid var(--card-border);
   border-radius: 32px;
-  background: linear-gradient(180deg, rgba(47, 18, 35, 0.34), rgba(29, 12, 27, 0.22));
+  background: linear-gradient(180deg, var(--card-bg-top), var(--card-bg-bottom));
   backdrop-filter: blur(12px);
   box-shadow: var(--shadow);
   text-align: center;
