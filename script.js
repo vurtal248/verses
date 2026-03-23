@@ -125,20 +125,33 @@ const skyThemes = [
   },
 ];
 
-function applyRandomTheme() {
-  const theme = skyThemes[Math.floor(Math.random() * skyThemes.length)];
-  const root = document.documentElement;
+// Check for offline mode and use cached verses
+const cachedVerses = JSON.parse(localStorage.getItem('cachedVerses') || '[]');
 
+function applyTheme(theme) {
+  const root = document.documentElement;
   Object.entries(theme).forEach(([key, value]) => {
     const cssVariable = `--${key.replace(/[A-Z]/g, (letter) => `-${letter.toLowerCase()}`)}`;
     root.style.setProperty(cssVariable, value);
   });
 }
 
-async function loadRandomVerse() {
-  referenceElement.textContent = "Loading scripture...";
-  contentElement.textContent = "Gathering a fresh passage for reflection.";
+function applyRandomThemeWithTransition() {
+  const root = document.documentElement;
+  root.style.transition = 'all 0.8s cubic-bezier(0.4, 0, 0.2, 1)';
+  
+  setTimeout(() => {
+    const theme = skyThemes[Math.floor(Math.random() * skyThemes.length)];
+    applyTheme(theme);
+    
+    // Remove transition after animation completes
+    setTimeout(() => {
+      root.style.transition = '';
+    }, 800);
+  }, 100);
+}
 
+async function loadRandomVerse() {
   try {
     const response = await fetch("https://bible-api.com/data/web/random");
     if (!response.ok) {
@@ -149,13 +162,182 @@ async function loadRandomVerse() {
     const verseReference = `${data.random_verse.book} ${data.random_verse.chapter}:${data.random_verse.verse}`;
     const verseText = data.random_verse.text.trim();
 
-    referenceElement.textContent = verseReference;
-    contentElement.textContent = verseText;
+    return { reference: verseReference, content: verseText };
   } catch (error) {
-    referenceElement.textContent = fallbackVerse.reference;
-    contentElement.textContent = fallbackVerse.content;
+    return fallbackVerse;
   }
 }
 
-applyRandomTheme();
-loadRandomVerse();
+async function loadRandomVerseWithAnimation() {
+  referenceElement.style.opacity = '0.5';
+  contentElement.style.opacity = '0.5';
+  
+  let verseData;
+  
+  if (!navigator.onLine && cachedVerses.length > 0) {
+    // Use cached verse when offline
+    verseData = cachedVerses[Math.floor(Math.random() * cachedVerses.length)];
+  } else {
+    verseData = await loadRandomVerse();
+    
+    // Cache the verse for offline use (keep last 10)
+    if (cachedVerses.length >= 10) {
+      cachedVerses.shift();
+    }
+    cachedVerses.push(verseData);
+    localStorage.setItem('cachedVerses', JSON.stringify(cachedVerses));
+  }
+  
+  referenceElement.textContent = verseData.reference;
+  contentElement.textContent = verseData.content;
+  
+  referenceElement.style.transition = 'opacity 0.6s ease';
+  contentElement.style.transition = 'opacity 0.6s ease';
+  
+  referenceElement.style.opacity = '1';
+  contentElement.style.opacity = '1';
+}
+
+function setupShareButton() {
+  const shareButton = document.createElement('button');
+  shareButton.className = 'share-button';
+  shareButton.setAttribute('aria-label', 'Share this verse');
+  shareButton.innerHTML = `
+    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+      <circle cx="18" cy="5" r="3"/>
+      <circle cx="6" cy="12" r="3"/>
+      <circle cx="18" cy="19" r="3"/>
+      <line x1="8.59" y1="13.51" x2="15.42" y2="17.49"/>
+      <line x1="15.41" y1="6.51" x2="8.59" y2="10.49"/>
+    </svg>
+  `;
+  
+  shareButton.addEventListener('click', async () => {
+    const verseData = {
+      title: referenceElement.textContent,
+      text: contentElement.textContent,
+      url: window.location.href
+    };
+    
+    if (navigator.share) {
+      try {
+        await navigator.share(verseData);
+      } catch (err) {
+        console.log('Share cancelled');
+      }
+    } else {
+      // Fallback to clipboard
+      navigator.clipboard.writeText(
+        `${verseData.title}\n\n${verseData.text}\n\n${verseData.url}`
+      );
+      shareButton.textContent = 'Copied!';
+      setTimeout(() => {
+        shareButton.innerHTML = `
+          <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <circle cx="18" cy="5" r="3"/>
+            <circle cx="6" cy="12" r="3"/>
+            <circle cx="18" cy="19" r="3"/>
+            <line x1="8.59" y1="13.51" x2="15.42" y2="17.49"/>
+            <line x1="15.41" y1="6.51" x2="8.59" y2="10.49"/>
+          </svg>
+        `;
+      }, 2000);
+    }
+  });
+  
+  document.querySelector('.verse-card').appendChild(shareButton);
+}
+
+function setupThemePreference() {
+  const savedTheme = localStorage.getItem('preferredTheme');
+  if (savedTheme === 'static') {
+    // Apply first theme and disable random theme switching
+    applyTheme(skyThemes[0]);
+  } else {
+    applyRandomThemeWithTransition();
+  }
+}
+
+function setupRefreshButton() {
+  const refreshButton = document.createElement('button');
+  refreshButton.className = 'action-button';
+  refreshButton.id = 'refresh-button';
+  refreshButton.setAttribute('aria-label', 'Get new verse');
+  refreshButton.innerHTML = `
+    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+      <path d="M23 4v6h-6"/>
+      <path d="M20.49 15a9 9 0 1 1-2.12-9.36L23 10"/>
+    </svg>
+  `;
+  
+  refreshButton.addEventListener('click', async () => {
+    refreshButton.style.transform = 'rotate(180deg)';
+    refreshButton.style.transition = 'transform 0.5s ease';
+    
+    await loadRandomVerseWithAnimation();
+    
+    setTimeout(() => {
+      refreshButton.style.transform = 'rotate(360deg)';
+    }, 100);
+    
+    setTimeout(() => {
+      refreshButton.style.transform = '';
+      refreshButton.style.transition = '';
+    }, 600);
+  });
+  
+  const actionsDiv = document.querySelector('.verse-card__actions') || document.createElement('div');
+  if (!document.querySelector('.verse-card__actions')) {
+    actionsDiv.className = 'verse-card__actions';
+    document.querySelector('.verse-card').appendChild(actionsDiv);
+  }
+  
+  actionsDiv.appendChild(refreshButton);
+}
+
+function setupThemeToggleButton() {
+  const themeButton = document.createElement('button');
+  themeButton.className = 'action-button';
+  themeButton.id = 'theme-toggle';
+  themeButton.setAttribute('aria-label', 'Toggle static theme');
+  themeButton.innerHTML = `
+    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+      <circle cx="12" cy="12" r="5"/>
+      <path d="M12 1v2M12 21v2M4.22 4.22l1.42 1.42M18.36 18.36l1.42 1.42M1 12h2M21 12h2M4.22 19.78l1.42-1.42M18.36 5.64l1.42-1.42"/>
+    </svg>
+  `;
+  
+  themeButton.addEventListener('click', () => {
+    const currentPreference = localStorage.getItem('preferredTheme');
+    if (currentPreference === 'static') {
+      localStorage.setItem('preferredTheme', 'random');
+      themeButton.style.color = 'var(--text-soft)';
+      applyRandomThemeWithTransition();
+    } else {
+      localStorage.setItem('preferredTheme', 'static');
+      themeButton.style.color = 'var(--focus)';
+      applyTheme(skyThemes[0]);
+    }
+  });
+  
+  const actionsDiv = document.querySelector('.verse-card__actions');
+  if (actionsDiv) {
+    actionsDiv.appendChild(themeButton);
+  }
+}
+
+// Initialize everything
+function initializeApp() {
+  setupThemePreference();
+  loadRandomVerseWithAnimation();
+  setupShareButton();
+  setupRefreshButton();
+  setupThemeToggleButton();
+}
+
+// Start the app when DOM is ready
+if (document.readyState === 'loading') {
+  document.addEventListener('DOMContentLoaded', initializeApp);
+} else {
+  initializeApp();
+}
