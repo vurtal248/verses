@@ -292,58 +292,6 @@ class ParticleSystem {
 }
 
 /* ==========================================================================
-   MAGNETIC CURSOR — dot + lagging ring, with hover states
-   ========================================================================== */
-class MagneticCursor {
-  constructor() {
-    this.dot  = document.querySelector('.cursor__dot');
-    this.ring = document.querySelector('.cursor__ring');
-
-    if (!this.dot || !this.ring) return;
-
-    // Abort entirely on touch-primary devices
-    if (window.matchMedia('(hover: none)').matches) {
-      document.querySelector('.cursor').style.display = 'none';
-      return;
-    }
-
-    this.x = this.ringX = -100;
-    this.y = this.ringY = -100;
-
-    document.addEventListener('mousemove', e => {
-      this.x = e.clientX;
-      this.y = e.clientY;
-    });
-
-    // Toggle body class so CSS can style dot/ring on interactive-element hover
-    document.querySelectorAll('button, a, [data-magnetic]').forEach(el => {
-      el.addEventListener('mouseenter', () => document.body.classList.add('cursor--hover'));
-      el.addEventListener('mouseleave', () => document.body.classList.remove('cursor--hover'));
-    });
-
-    this.tick = this.tick.bind(this);
-    this.tick();
-  }
-
-  tick() {
-    // Lerp ring toward cursor — creates the physical "drag" feel
-    this.ringX += (this.x - this.ringX) * 0.1;
-    this.ringY += (this.y - this.ringY) * 0.1;
-
-    if (this.dot) {
-      this.dot.style.left = `${this.x}px`;
-      this.dot.style.top  = `${this.y}px`;
-    }
-    if (this.ring) {
-      this.ring.style.left = `${this.ringX}px`;
-      this.ring.style.top  = `${this.ringY}px`;
-    }
-
-    requestAnimationFrame(this.tick);
-  }
-}
-
-/* ==========================================================================
    MAGNETIC BUTTONS — buttons drift toward the cursor when nearby
    ========================================================================== */
 class MagneticButtons {
@@ -674,9 +622,6 @@ function bootstrap() {
   /* Particles */
   const pContainer = document.getElementById('particles');
   if (pContainer && !prefersReducedMotion) new ParticleSystem(pContainer);
-
-  /* Custom cursor */
-  new MagneticCursor();
 
   /* Magnetic pull on buttons */
   if (!window.matchMedia('(hover: none)').matches) {
