@@ -1,343 +1,702 @@
-const referenceElement = document.getElementById("verse-reference");
-const contentElement = document.getElementById("verse-content");
-
-const fallbackVerse = {
-  reference: "Matthew 11:28",
-  content:
-    "Come to me, all you who are weary and burdened, and I will give you rest.",
-};
-
-const skyThemes = [
+/* ==========================================================================
+   THEMES — Five hand-crafted sky palettes
+   Keys are camelCase; applyTheme() converts them to CSS custom properties.
+   ========================================================================== */
+const themes = [
+  /* 0 — Dawn */
   {
-    bgTop: "#182b49",
-    bgMid: "#6ca3cf",
-    bgAccent: "#f1c084",
-    bgBottom: "#ffe6b8",
-    horizonGlow: "rgba(255, 227, 166, 0.88)",
-    horizonHaze: "rgba(255, 244, 204, 0.5)",
-    sunCore: "#fff7d6",
-    sunMid: "rgba(255, 247, 214, 0.96)",
-    sunFade: "rgba(255, 216, 153, 0.56)",
-    glowCore: "rgba(255, 241, 190, 0.34)",
-    glowFade: "rgba(255, 210, 133, 0.18)",
-    overlayTop: "rgba(255, 255, 255, 0.12)",
-    overlayLeft: "rgba(255, 250, 226, 0.18)",
-    overlayRight: "rgba(255, 224, 169, 0.14)",
-    textMain: "#fffaf0",
-    textSoft: "rgba(255, 250, 240, 0.84)",
-    cardBorder: "rgba(255, 250, 240, 0.2)",
-    cardBgTop: "rgba(34, 52, 83, 0.26)",
-    cardBgBottom: "rgba(26, 38, 61, 0.18)",
-    shadow: "0 24px 80px rgba(17, 24, 39, 0.28)",
-    focus: "#fff1b8",
+    bgTop: '#182b49', bgMid: '#6ca3cf', bgAccent: '#f1c084', bgBottom: '#ffe6b8',
+    horizonGlow: 'rgba(255,227,166,0.88)', horizonHaze: 'rgba(255,244,204,0.5)',
+    sunCore: '#fff7d6', sunMid: 'rgba(255,247,214,0.96)', sunFade: 'rgba(255,216,153,0.56)',
+    glowCore: 'rgba(255,241,190,0.34)', glowFade: 'rgba(255,210,133,0.18)',
+    textMain: '#fffaf0', textSoft: 'rgba(255,250,240,0.82)',
+    cardBorderX: 'rgba(255,250,240,0.18)', cardBgA: 'rgba(34,52,83,0.28)',
+    cardBgB: 'rgba(26,38,61,0.16)', shadow: '0 24px 80px rgba(17,24,39,0.28)',
+    focus: '#fff1b8',
   },
+  /* 1 — Sunset Dusk (default) */
   {
-    bgTop: "#21111f",
-    bgMid: "#5f2940",
-    bgAccent: "#a84f4a",
-    bgBottom: "#f08c4e",
-    horizonGlow: "rgba(255, 147, 83, 0.82)",
-    horizonHaze: "rgba(255, 205, 142, 0.32)",
-    sunCore: "#ffd08a",
-    sunMid: "rgba(255, 209, 138, 0.95)",
-    sunFade: "rgba(255, 164, 104, 0.62)",
-    glowCore: "rgba(255, 207, 142, 0.45)",
-    glowFade: "rgba(255, 170, 103, 0.24)",
-    overlayTop: "rgba(255, 255, 255, 0.03)",
-    overlayLeft: "rgba(255, 244, 231, 0.08)",
-    overlayRight: "rgba(255, 196, 138, 0.1)",
-    textMain: "#fff6ea",
-    textSoft: "rgba(255, 246, 234, 0.8)",
-    cardBorder: "rgba(255, 244, 229, 0.14)",
-    cardBgTop: "rgba(47, 18, 35, 0.34)",
-    cardBgBottom: "rgba(29, 12, 27, 0.22)",
-    shadow: "0 24px 80px rgba(20, 6, 19, 0.45)",
-    focus: "#ffe1a8",
+    bgTop: '#21111f', bgMid: '#5f2940', bgAccent: '#a84f4a', bgBottom: '#f08c4e',
+    horizonGlow: 'rgba(255,147,83,0.82)', horizonHaze: 'rgba(255,205,142,0.32)',
+    sunCore: '#ffd08a', sunMid: 'rgba(255,209,138,0.95)', sunFade: 'rgba(255,164,104,0.62)',
+    glowCore: 'rgba(255,207,142,0.45)', glowFade: 'rgba(255,170,103,0.24)',
+    textMain: '#fff6ea', textSoft: 'rgba(255,246,234,0.68)',
+    cardBorderX: 'rgba(255,244,229,0.11)', cardBgA: 'rgba(40,14,30,0.38)',
+    cardBgB: 'rgba(20,7,18,0.22)', shadow: '0 32px 100px rgba(14,3,13,0.58)',
+    focus: '#ffe1a8',
   },
+  /* 2 — Purple Haze */
   {
-    bgTop: "#171b36",
-    bgMid: "#4d426d",
-    bgAccent: "#b26967",
-    bgBottom: "#f6a16d",
-    horizonGlow: "rgba(255, 170, 117, 0.74)",
-    horizonHaze: "rgba(244, 203, 166, 0.3)",
-    sunCore: "#ffe0b2",
-    sunMid: "rgba(255, 224, 178, 0.92)",
-    sunFade: "rgba(255, 182, 129, 0.48)",
-    glowCore: "rgba(255, 206, 155, 0.34)",
-    glowFade: "rgba(233, 160, 113, 0.18)",
-    overlayTop: "rgba(255, 255, 255, 0.04)",
-    overlayLeft: "rgba(255, 229, 214, 0.08)",
-    overlayRight: "rgba(208, 189, 255, 0.08)",
-    textMain: "#fff5ec",
-    textSoft: "rgba(255, 245, 236, 0.8)",
-    cardBorder: "rgba(255, 241, 233, 0.16)",
-    cardBgTop: "rgba(28, 24, 50, 0.34)",
-    cardBgBottom: "rgba(18, 16, 35, 0.2)",
-    shadow: "0 24px 80px rgba(11, 11, 27, 0.45)",
-    focus: "#ffe0b0",
+    bgTop: '#171b36', bgMid: '#4d426d', bgAccent: '#b26967', bgBottom: '#f6a16d',
+    horizonGlow: 'rgba(255,170,117,0.74)', horizonHaze: 'rgba(244,203,166,0.30)',
+    sunCore: '#ffe0b2', sunMid: 'rgba(255,224,178,0.92)', sunFade: 'rgba(255,182,129,0.48)',
+    glowCore: 'rgba(255,206,155,0.34)', glowFade: 'rgba(233,160,113,0.18)',
+    textMain: '#fff5ec', textSoft: 'rgba(255,245,236,0.78)',
+    cardBorderX: 'rgba(255,241,233,0.14)', cardBgA: 'rgba(28,24,50,0.36)',
+    cardBgB: 'rgba(18,16,35,0.22)', shadow: '0 24px 80px rgba(11,11,27,0.48)',
+    focus: '#ffe0b0',
   },
+  /* 3 — Nautical Twilight */
   {
-    bgTop: "#071423",
-    bgMid: "#15304d",
-    bgAccent: "#3b5a78",
-    bgBottom: "#d18a62",
-    horizonGlow: "rgba(255, 164, 113, 0.44)",
-    horizonHaze: "rgba(162, 193, 226, 0.18)",
-    sunCore: "#ffd3a3",
-    sunMid: "rgba(255, 211, 163, 0.6)",
-    sunFade: "rgba(255, 160, 104, 0.26)",
-    glowCore: "rgba(155, 193, 255, 0.18)",
-    glowFade: "rgba(255, 165, 115, 0.11)",
-    overlayTop: "rgba(210, 231, 255, 0.05)",
-    overlayLeft: "rgba(143, 180, 226, 0.09)",
-    overlayRight: "rgba(255, 209, 171, 0.06)",
-    textMain: "#f7f2e8",
-    textSoft: "rgba(247, 242, 232, 0.76)",
-    cardBorder: "rgba(234, 241, 250, 0.14)",
-    cardBgTop: "rgba(9, 21, 38, 0.42)",
-    cardBgBottom: "rgba(7, 14, 29, 0.28)",
-    shadow: "0 24px 80px rgba(2, 9, 18, 0.55)",
-    focus: "#ffd6a0",
+    bgTop: '#071423', bgMid: '#15304d', bgAccent: '#3b5a78', bgBottom: '#d18a62',
+    horizonGlow: 'rgba(255,164,113,0.44)', horizonHaze: 'rgba(162,193,226,0.18)',
+    sunCore: '#ffd3a3', sunMid: 'rgba(255,211,163,0.60)', sunFade: 'rgba(255,160,104,0.26)',
+    glowCore: 'rgba(155,193,255,0.18)', glowFade: 'rgba(255,165,115,0.11)',
+    textMain: '#f7f2e8', textSoft: 'rgba(247,242,232,0.74)',
+    cardBorderX: 'rgba(234,241,250,0.13)', cardBgA: 'rgba(9,21,38,0.44)',
+    cardBgB: 'rgba(7,14,29,0.28)', shadow: '0 24px 80px rgba(2,9,18,0.58)',
+    focus: '#ffd6a0',
   },
+  /* 4 — Astronomical Night */
   {
-    bgTop: "#030711",
-    bgMid: "#0d1630",
-    bgAccent: "#18274d",
-    bgBottom: "#3b3356",
-    horizonGlow: "rgba(141, 121, 205, 0.22)",
-    horizonHaze: "rgba(121, 154, 210, 0.12)",
-    sunCore: "#dfe8ff",
-    sunMid: "rgba(183, 205, 255, 0.3)",
-    sunFade: "rgba(123, 139, 205, 0.12)",
-    glowCore: "rgba(150, 172, 255, 0.16)",
-    glowFade: "rgba(119, 92, 195, 0.09)",
-    overlayTop: "rgba(220, 230, 255, 0.04)",
-    overlayLeft: "rgba(121, 160, 255, 0.06)",
-    overlayRight: "rgba(203, 214, 255, 0.05)",
-    textMain: "#f6f3ee",
-    textSoft: "rgba(246, 243, 238, 0.74)",
-    cardBorder: "rgba(234, 238, 248, 0.12)",
-    cardBgTop: "rgba(7, 12, 25, 0.52)",
-    cardBgBottom: "rgba(4, 8, 17, 0.34)",
-    shadow: "0 24px 80px rgba(0, 0, 0, 0.62)",
-    focus: "#d8e3ff",
+    bgTop: '#030711', bgMid: '#0d1630', bgAccent: '#18274d', bgBottom: '#3b3356',
+    horizonGlow: 'rgba(141,121,205,0.22)', horizonHaze: 'rgba(121,154,210,0.12)',
+    sunCore: '#dfe8ff', sunMid: 'rgba(183,205,255,0.30)', sunFade: 'rgba(123,139,205,0.12)',
+    glowCore: 'rgba(150,172,255,0.16)', glowFade: 'rgba(119,92,195,0.09)',
+    textMain: '#f6f3ee', textSoft: 'rgba(246,243,238,0.72)',
+    cardBorderX: 'rgba(234,238,248,0.11)', cardBgA: 'rgba(7,12,25,0.54)',
+    cardBgB: 'rgba(4,8,17,0.36)', shadow: '0 24px 80px rgba(0,0,0,0.65)',
+    focus: '#d8e3ff',
   },
 ];
 
-// Check for offline mode and use cached verses
-const cachedVerses = JSON.parse(localStorage.getItem('cachedVerses') || '[]');
+/* ==========================================================================
+   THEME UTILITIES
+   ========================================================================== */
 
+/** Convert camelCase key → CSS custom property name (e.g. bgTop → --bg-top) */
+function toCssVar(key) {
+  return '--' + key.replace(/[A-Z]/g, c => '-' + c.toLowerCase());
+}
+
+/** Write all theme values to :root CSS custom properties */
 function applyTheme(theme) {
   const root = document.documentElement;
+  // Map the card border alias used in the theme objects to the CSS variable name
   Object.entries(theme).forEach(([key, value]) => {
-    const cssVariable = `--${key.replace(/[A-Z]/g, (letter) => `-${letter.toLowerCase()}`)}`;
-    root.style.setProperty(cssVariable, value);
+    let cssKey = key;
+    // Rename cardBorderX → cardBorder to match the CSS variable --card-border
+    if (key === 'cardBorderX') cssKey = 'cardBorder';
+    if (key === 'cardBgA')     cssKey = 'cardBgA';
+    if (key === 'cardBgB')     cssKey = 'cardBgB';
+    root.style.setProperty(toCssVar(cssKey), value);
   });
 }
 
-function applyRandomThemeWithTransition() {
-  const root = document.documentElement;
-  root.style.transition = 'all 0.8s cubic-bezier(0.4, 0, 0.2, 1)';
-  
-  setTimeout(() => {
-    const theme = skyThemes[Math.floor(Math.random() * skyThemes.length)];
-    applyTheme(theme);
-    
-    // Remove transition after animation completes
-    setTimeout(() => {
-      root.style.transition = '';
-    }, 800);
-  }, 100);
-}
-
-async function loadRandomVerse() {
-  try {
-    const response = await fetch("https://bible-api.com/data/web/random");
-    if (!response.ok) {
-      throw new Error("Failed to fetch verse");
-    }
-
-    const data = await response.json();
-    const verseReference = `${data.random_verse.book} ${data.random_verse.chapter}:${data.random_verse.verse}`;
-    const verseText = data.random_verse.text.trim();
-
-    return { reference: verseReference, content: verseText };
-  } catch (error) {
-    return fallbackVerse;
+/* ==========================================================================
+   TEXT SCRAMBLE
+   Character-decode effect: characters start randomised, then lock in
+   left-to-right to reveal the final string.
+   ========================================================================== */
+class TextScramble {
+  constructor(el) {
+    this.el = el;
+    this.chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789:·';
+    this.queue = [];
+    this.frame = 0;
+    this.animId = null;
+    this.resolve = null;
   }
-}
 
-async function loadRandomVerseWithAnimation() {
-  referenceElement.style.opacity = '0.5';
-  contentElement.style.opacity = '0.5';
-  
-  let verseData;
-  
-  if (!navigator.onLine && cachedVerses.length > 0) {
-    // Use cached verse when offline
-    verseData = cachedVerses[Math.floor(Math.random() * cachedVerses.length)];
-  } else {
-    verseData = await loadRandomVerse();
-    
-    // Cache the verse for offline use (keep last 10)
-    if (cachedVerses.length >= 10) {
-      cachedVerses.shift();
-    }
-    cachedVerses.push(verseData);
-    localStorage.setItem('cachedVerses', JSON.stringify(cachedVerses));
-  }
-  
-  referenceElement.textContent = verseData.reference;
-  contentElement.textContent = verseData.content;
-  
-  referenceElement.style.transition = 'opacity 0.6s ease';
-  contentElement.style.transition = 'opacity 0.6s ease';
-  
-  referenceElement.style.opacity = '1';
-  contentElement.style.opacity = '1';
-}
+  /**
+   * Animate element's text from current content → newText.
+   * Returns a Promise that resolves when the animation completes.
+   */
+  setText(newText) {
+    const oldText = this.el.textContent;
+    const len = Math.max(oldText.length, newText.length);
 
-function setupShareButton() {
-  const shareButton = document.createElement('button');
-  shareButton.className = 'share-button';
-  shareButton.setAttribute('aria-label', 'Share this verse');
-  shareButton.innerHTML = `
-    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-      <circle cx="18" cy="5" r="3"/>
-      <circle cx="6" cy="12" r="3"/>
-      <circle cx="18" cy="19" r="3"/>
-      <line x1="8.59" y1="13.51" x2="15.42" y2="17.49"/>
-      <line x1="15.41" y1="6.51" x2="8.59" y2="10.49"/>
-    </svg>
-  `;
-  
-  shareButton.addEventListener('click', async () => {
-    const verseData = {
-      title: referenceElement.textContent,
-      text: contentElement.textContent,
-      url: window.location.href
-    };
-    
-    if (navigator.share) {
-      try {
-        await navigator.share(verseData);
-      } catch (err) {
-        console.log('Share cancelled');
+    return new Promise(resolve => {
+      this.resolve = resolve;
+      this.queue = [];
+
+      for (let i = 0; i < len; i++) {
+        const from  = oldText[i] || '';
+        const to    = newText[i] || '';
+        const start = Math.floor(Math.random() * 8);
+        const end   = start + Math.floor(Math.random() * 14) + 4;
+        this.queue.push({ from, to, start, end, char: '' });
       }
-    } else {
-      // Fallback to clipboard
-      navigator.clipboard.writeText(
-        `${verseData.title}\n\n${verseData.text}\n\n${verseData.url}`
-      );
-      shareButton.textContent = 'Copied!';
-      setTimeout(() => {
-        shareButton.innerHTML = `
-          <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-            <circle cx="18" cy="5" r="3"/>
-            <circle cx="6" cy="12" r="3"/>
-            <circle cx="18" cy="19" r="3"/>
-            <line x1="8.59" y1="13.51" x2="15.42" y2="17.49"/>
-            <line x1="15.41" y1="6.51" x2="8.59" y2="10.49"/>
-          </svg>
-        `;
-      }, 2000);
+
+      cancelAnimationFrame(this.animId);
+      this.frame = 0;
+      this.tick();
+    });
+  }
+
+  tick() {
+    let output = '';
+    let complete = 0;
+
+    for (let i = 0, q = this.queue; i < q.length; i++) {
+      const { to, start, end } = q[i];
+      let { char } = q[i];
+
+      if (this.frame >= end) {
+        complete++;
+        output += to;
+      } else if (this.frame >= start) {
+        // Occasionally re-randomise the scramble char
+        if (!char || Math.random() < 0.28) {
+          char = this.chars[Math.floor(Math.random() * this.chars.length)];
+          q[i].char = char;
+        }
+        // Wrap in span so CSS can dim scramble chars differently from final chars
+        output += `<span class="scramble-char" aria-hidden="true">${char}</span>`;
+      } else {
+        output += q[i].from;
+      }
     }
-  });
-  
-  document.querySelector('.verse-card').appendChild(shareButton);
-}
 
-function setupThemePreference() {
-  const savedTheme = localStorage.getItem('preferredTheme');
-  if (savedTheme === 'static') {
-    // Apply first theme and disable random theme switching
-    applyTheme(skyThemes[0]);
-  } else {
-    applyRandomThemeWithTransition();
-  }
-}
+    this.el.innerHTML = output;
+    this.frame++;
 
-function setupRefreshButton() {
-  const refreshButton = document.createElement('button');
-  refreshButton.className = 'action-button';
-  refreshButton.id = 'refresh-button';
-  refreshButton.setAttribute('aria-label', 'Get new verse');
-  refreshButton.innerHTML = `
-    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-      <path d="M23 4v6h-6"/>
-      <path d="M20.49 15a9 9 0 1 1-2.12-9.36L23 10"/>
-    </svg>
-  `;
-  
-  refreshButton.addEventListener('click', async () => {
-    refreshButton.style.transform = 'rotate(180deg)';
-    refreshButton.style.transition = 'transform 0.5s ease';
-    
-    await loadRandomVerseWithAnimation();
-    
-    setTimeout(() => {
-      refreshButton.style.transform = 'rotate(360deg)';
-    }, 100);
-    
-    setTimeout(() => {
-      refreshButton.style.transform = '';
-      refreshButton.style.transition = '';
-    }, 600);
-  });
-  
-  const actionsDiv = document.querySelector('.verse-card__actions') || document.createElement('div');
-  if (!document.querySelector('.verse-card__actions')) {
-    actionsDiv.className = 'verse-card__actions';
-    document.querySelector('.verse-card').appendChild(actionsDiv);
-  }
-  
-  actionsDiv.appendChild(refreshButton);
-}
-
-function setupThemeToggleButton() {
-  const themeButton = document.createElement('button');
-  themeButton.className = 'action-button';
-  themeButton.id = 'theme-toggle';
-  themeButton.setAttribute('aria-label', 'Toggle static theme');
-  themeButton.innerHTML = `
-    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-      <circle cx="12" cy="12" r="5"/>
-      <path d="M12 1v2M12 21v2M4.22 4.22l1.42 1.42M18.36 18.36l1.42 1.42M1 12h2M21 12h2M4.22 19.78l1.42-1.42M18.36 5.64l1.42-1.42"/>
-    </svg>
-  `;
-  
-  themeButton.addEventListener('click', () => {
-    const currentPreference = localStorage.getItem('preferredTheme');
-    if (currentPreference === 'static') {
-      localStorage.setItem('preferredTheme', 'random');
-      themeButton.style.color = 'var(--text-soft)';
-      applyRandomThemeWithTransition();
+    if (complete === this.queue.length) {
+      // Write clean textContent (no spans) and resolve
+      this.el.textContent = this.queue.map(q => q.to).join('');
+      if (this.resolve) this.resolve();
     } else {
-      localStorage.setItem('preferredTheme', 'static');
-      themeButton.style.color = 'var(--focus)';
-      applyTheme(skyThemes[0]);
+      this.animId = requestAnimationFrame(() => this.tick());
     }
-  });
-  
-  const actionsDiv = document.querySelector('.verse-card__actions');
-  if (actionsDiv) {
-    actionsDiv.appendChild(themeButton);
   }
 }
 
-// Initialize everything
-function initializeApp() {
-  setupThemePreference();
-  loadRandomVerseWithAnimation();
-  setupShareButton();
-  setupRefreshButton();
-  setupThemeToggleButton();
+/* ==========================================================================
+   GOD RAYS — crepuscular light shafts emanating from the virtual sun
+   Uses Canvas 2D with triangular rays on a transparent background so
+   mix-blend-mode: screen in CSS lets them illuminate without darkening.
+   ========================================================================== */
+class GodRays {
+  constructor(canvas) {
+    this.canvas  = canvas;
+    this.ctx     = canvas.getContext('2d');
+    this.time    = 0;
+    this.animId  = null;
+
+    this.resize  = this.resize.bind(this);
+    this.tick    = this.tick.bind(this);
+
+    window.addEventListener('resize', this.resize, { passive: true });
+    this.resize();
+    this.generateRays();
+    this.tick();
+  }
+
+  resize() {
+    this.canvas.width  = window.innerWidth;
+    this.canvas.height = window.innerHeight;
+    // Sun sits at horizontal centre, 82% down the viewport
+    this.sunX = this.canvas.width  / 2;
+    this.sunY = this.canvas.height * 0.82;
+  }
+
+  generateRays() {
+    const count = 22;
+    this.rays = Array.from({ length: count }, (_, i) => ({
+      // Spread rays 195°–345° (straight up = 270°) to fan only above the horizon
+      angle:     (195 + (i / (count - 1)) * 150) * (Math.PI / 180),
+      halfWidth: (Math.random() * 4 + 1.2) * (Math.PI / 180),
+      alpha:      Math.random() * 0.05 + 0.01,
+      phase:      Math.random() * Math.PI * 2,
+      // Slightly different speeds give organic, asynchronous pulsing
+      speed:     (Math.random() * 0.28 + 0.08) * 0.001,
+    }));
+  }
+
+  drawRay(ray) {
+    const { ctx, sunX, sunY, canvas, time } = this;
+
+    // Pulsing alpha — makes rays feel like light filtering through clouds
+    const pulse = 0.55 + 0.45 * Math.sin(time * ray.speed + ray.phase);
+    const alpha = ray.alpha * pulse;
+    if (alpha < 0.005) return; // skip invisible rays for performance
+
+    const diag = Math.hypot(canvas.width, canvas.height) * 1.25;
+    const a  = ray.angle;
+    const hw = ray.halfWidth;
+
+    ctx.save();
+    ctx.beginPath();
+    ctx.moveTo(sunX, sunY);
+    ctx.lineTo(sunX + Math.cos(a - hw) * diag, sunY + Math.sin(a - hw) * diag);
+    ctx.lineTo(sunX + Math.cos(a + hw) * diag, sunY + Math.sin(a + hw) * diag);
+    ctx.closePath();
+
+    // Gradient fades the ray's intensity with distance from the sun
+    const endX = sunX + Math.cos(a) * diag * 0.55;
+    const endY = sunY + Math.sin(a) * diag * 0.55;
+    const grad = ctx.createLinearGradient(sunX, sunY, endX, endY);
+    grad.addColorStop(0,    `rgba(255,218,148,${alpha})`);
+    grad.addColorStop(0.35, `rgba(255,195,120,${alpha * 0.45})`);
+    grad.addColorStop(1,    `rgba(255,170,100,0)`);
+
+    ctx.fillStyle = grad;
+    ctx.fill();
+    ctx.restore();
+  }
+
+  tick() {
+    this.time++;
+    this.ctx.clearRect(0, 0, this.canvas.width, this.canvas.height);
+    this.rays.forEach(r => this.drawRay(r));
+    this.animId = requestAnimationFrame(this.tick);
+  }
+
+  destroy() {
+    cancelAnimationFrame(this.animId);
+    window.removeEventListener('resize', this.resize);
+  }
 }
 
-// Start the app when DOM is ready
+/* ==========================================================================
+   PARTICLE SYSTEM — floating dust motes drifting upward
+   DOM-based (no secondary canvas) so particles inherit theme colours via CSS.
+   ========================================================================== */
+class ParticleSystem {
+  constructor(container) {
+    this.container = container;
+    // Fewer particles on mobile to preserve performance
+    this.count = window.matchMedia('(max-width: 640px)').matches ? 10 : 22;
+    this.init();
+  }
+
+  buildParticle() {
+    const el   = document.createElement('span');
+    el.className = 'particle';
+
+    const size     = Math.random() * 2.5 + 0.7;
+    const x        = Math.random() * 100;       // % from left
+    const bottom   = Math.random() * 35 + 5;    // % from bottom
+    const duration = Math.random() * 12 + 8;    // seconds
+    const delay    = -(Math.random() * duration); // negative = already mid-flight
+    const drift    = (Math.random() - 0.5) * 70; // px horizontal drift
+
+    el.style.cssText = `
+      width: ${size}px;
+      height: ${size}px;
+      left: ${x}%;
+      bottom: ${bottom}%;
+      animation-duration: ${duration}s;
+      animation-delay: ${delay}s;
+      opacity: ${Math.random() * 0.55 + 0.2};
+      --drift: ${drift}px;
+    `;
+    return el;
+  }
+
+  init() {
+    const frag = document.createDocumentFragment();
+    for (let i = 0; i < this.count; i++) frag.appendChild(this.buildParticle());
+    this.container.appendChild(frag);
+  }
+}
+
+/* ==========================================================================
+   MAGNETIC CURSOR — dot + lagging ring, with hover states
+   ========================================================================== */
+class MagneticCursor {
+  constructor() {
+    this.dot  = document.querySelector('.cursor__dot');
+    this.ring = document.querySelector('.cursor__ring');
+
+    if (!this.dot || !this.ring) return;
+
+    // Abort entirely on touch-primary devices
+    if (window.matchMedia('(hover: none)').matches) {
+      document.querySelector('.cursor').style.display = 'none';
+      return;
+    }
+
+    this.x = this.ringX = -100;
+    this.y = this.ringY = -100;
+
+    document.addEventListener('mousemove', e => {
+      this.x = e.clientX;
+      this.y = e.clientY;
+    });
+
+    // Toggle body class so CSS can style dot/ring on interactive-element hover
+    document.querySelectorAll('button, a, [data-magnetic]').forEach(el => {
+      el.addEventListener('mouseenter', () => document.body.classList.add('cursor--hover'));
+      el.addEventListener('mouseleave', () => document.body.classList.remove('cursor--hover'));
+    });
+
+    this.tick = this.tick.bind(this);
+    this.tick();
+  }
+
+  tick() {
+    // Lerp ring toward cursor — creates the physical "drag" feel
+    this.ringX += (this.x - this.ringX) * 0.1;
+    this.ringY += (this.y - this.ringY) * 0.1;
+
+    if (this.dot) {
+      this.dot.style.left = `${this.x}px`;
+      this.dot.style.top  = `${this.y}px`;
+    }
+    if (this.ring) {
+      this.ring.style.left = `${this.ringX}px`;
+      this.ring.style.top  = `${this.ringY}px`;
+    }
+
+    requestAnimationFrame(this.tick);
+  }
+}
+
+/* ==========================================================================
+   MAGNETIC BUTTONS — buttons drift toward the cursor when nearby
+   ========================================================================== */
+class MagneticButtons {
+  constructor(selector) {
+    this.buttons = [...document.querySelectorAll(selector)];
+    this.strength = 0.38; // how strongly buttons pull toward cursor (0–1)
+    this.radius   = 80;   // px proximity threshold
+    this.init();
+  }
+
+  init() {
+    this.buttons.forEach(btn => {
+      document.addEventListener('mousemove', e => {
+        const rect = btn.getBoundingClientRect();
+        const cx   = rect.left + rect.width  / 2;
+        const cy   = rect.top  + rect.height / 2;
+        const dx   = e.clientX - cx;
+        const dy   = e.clientY - cy;
+        const dist = Math.hypot(dx, dy);
+
+        if (dist < this.radius) {
+          const pull = (1 - dist / this.radius) * this.strength;
+          btn.style.transform = `translate(${dx * pull}px, ${dy * pull}px)`;
+        } else {
+          btn.style.transform = '';
+        }
+      });
+
+      // Spring back on mouse leave
+      document.addEventListener('mouseleave', () => {
+        btn.style.transform = '';
+      });
+    });
+  }
+}
+
+/* ==========================================================================
+   CARD TILT — 3D perspective tilt following the cursor inside the card.
+
+   Implementation detail:
+   We start the card with opacity:0 + translateY via inline style (set in HTML).
+   On init, clearing those inline styles triggers the CSS transition defined in
+   styles.css (.verse-card { transition: opacity … transform … }).
+   After the entrance completes, the card's inline style is empty, so JS can
+   freely write perspective rotations without fighting a fill-mode animation.
+   ========================================================================== */
+class CardTilt {
+  constructor(card) {
+    this.card       = card;
+    this.spotlight  = card.querySelector('.card-spotlight');
+    this.maxTilt    = 5; // degrees
+
+    this.onMove  = this.onMove.bind(this);
+    this.onLeave = this.onLeave.bind(this);
+
+    card.addEventListener('mousemove',  this.onMove);
+    card.addEventListener('mouseleave', this.onLeave);
+  }
+
+  onMove(e) {
+    const rect = this.card.getBoundingClientRect();
+    const cx   = rect.left + rect.width  / 2;
+    const cy   = rect.top  + rect.height / 2;
+    const dx   = (e.clientX - cx) / (rect.width  / 2); // -1 … +1
+    const dy   = (e.clientY - cy) / (rect.height / 2); // -1 … +1
+
+    const rotX = -dy * this.maxTilt;
+    const rotY =  dx * this.maxTilt;
+
+    // transition: none so the tilt tracks the cursor instantly
+    this.card.style.transition = 'none';
+    this.card.style.transform  =
+      `perspective(1400px) rotateX(${rotX}deg) rotateY(${rotY}deg) translateZ(10px)`;
+
+    // Update card spotlight coordinates
+    if (this.spotlight) {
+      this.card.style.setProperty('--mouse-x', `${e.clientX - rect.left}px`);
+      this.card.style.setProperty('--mouse-y', `${e.clientY - rect.top}px`);
+    }
+  }
+
+  onLeave() {
+    // Restore transition for smooth spring-back to flat
+    this.card.style.transition = 'transform 0.75s cubic-bezier(0.23, 1, 0.32, 1)';
+    this.card.style.transform  = '';
+
+    setTimeout(() => {
+      // Clear transition so entrance/loading transforms aren't affected later
+      if (!this.card.classList.contains('is-loading')) {
+        this.card.style.transition = '';
+      }
+    }, 750);
+  }
+}
+
+/* ==========================================================================
+   VERSE APP — orchestrates data fetching, animations, and user actions
+   ========================================================================== */
+class VerseApp {
+  constructor() {
+    this.bookEl     = document.getElementById('verseBook');
+    this.numEl      = document.getElementById('verseNum');
+    this.contentEl  = document.getElementById('verse-content');
+    this.card       = document.getElementById('verseCard');
+    this.refreshBtn = document.getElementById('refreshBtn');
+    this.themeBtn   = document.getElementById('themeBtn');
+    this.shareBtn   = document.getElementById('shareBtn');
+
+    this.bookScramble = new TextScramble(this.bookEl);
+    this.numScramble  = new TextScramble(this.numEl);
+
+    this.themeIndex = 1; // start on Sunset Dusk
+    this.isLoading  = false;
+
+    // Persist up to 15 verses for offline fallback
+    this.cache = JSON.parse(localStorage.getItem('vrs_cache') || '[]');
+
+    this.fallback = {
+      reference: 'Matthew 11:28',
+      content:   'Come to me, all you who are weary and burdened, and I will give you rest.',
+    };
+  }
+
+  /* ------------------------------------------------------------------
+     Reference parsing — "1 Kings 3:16" → { book: "1 Kings", num: "3:16" }
+  ------------------------------------------------------------------ */
+  parseReference(ref) {
+    const i = ref.lastIndexOf(' ');
+    return i === -1
+      ? { book: ref, num: '' }
+      : { book: ref.slice(0, i), num: ref.slice(i + 1) };
+  }
+
+  /* ------------------------------------------------------------------
+     Fetch a random verse from the public Bible API
+  ------------------------------------------------------------------ */
+  async fetchVerse() {
+    try {
+      const res = await fetch('https://bible-api.com/data/web/random');
+      if (!res.ok) throw new Error(`HTTP ${res.status}`);
+      const data = await res.json();
+      const rv   = data.random_verse;
+      return {
+        reference: `${rv.book} ${rv.chapter}:${rv.verse}`,
+        content:   rv.text.trim(),
+      };
+    } catch {
+      return null; // caller handles null → fallback
+    }
+  }
+
+  /* ------------------------------------------------------------------
+     Main load routine — fetch, animate, display
+  ------------------------------------------------------------------ */
+  async loadVerse() {
+    if (this.isLoading) return;
+    this.isLoading = true;
+
+    this.card.classList.add('is-loading');
+    this.refreshBtn.classList.add('is-spinning');
+
+    let verse;
+
+    if (!navigator.onLine && this.cache.length > 0) {
+      // Offline: pull a random cached verse
+      verse = this.cache[Math.floor(Math.random() * this.cache.length)];
+    } else {
+      verse = await this.fetchVerse();
+
+      if (!verse) {
+        verse = this.fallback;
+      } else {
+        // Keep cache fresh (FIFO, max 15)
+        if (this.cache.length >= 15) this.cache.shift();
+        this.cache.push(verse);
+        localStorage.setItem('vrs_cache', JSON.stringify(this.cache));
+      }
+    }
+
+    const { book, num } = this.parseReference(verse.reference);
+
+    // Scramble book name (uppercase) and chapter:verse simultaneously
+    await Promise.all([
+      this.bookScramble.setText(book.toUpperCase()),
+      this.numScramble.setText(num),
+    ]);
+
+    // Fade in verse words sequentially
+    this.animateWords(verse.content);
+
+    this.card.classList.remove('is-loading');
+    this.refreshBtn.classList.remove('is-spinning');
+    this.isLoading = false;
+  }
+
+  /* ------------------------------------------------------------------
+     Word-wave animation — wraps each word in a .word span with
+     a staggered animation-delay, creating a ripple-in effect.
+     Delay is capped so very long verses don't drag on forever.
+  ------------------------------------------------------------------ */
+  animateWords(text) {
+    const words  = text.split(' ');
+    const cap    = 1.4; // seconds — max total stagger duration
+
+    const html = words.map((word, i) => {
+      const delay = Math.min(i * 0.038, cap);
+      return `<span class="word" style="animation-delay:${delay}s">${word} </span>`;
+    }).join('');
+
+    this.contentEl.innerHTML = html;
+  }
+
+  /* ------------------------------------------------------------------
+     Theme system — cycle through palettes with a crossfade
+  ------------------------------------------------------------------ */
+  applyTheme(theme) {
+    applyTheme(theme); // module-level helper
+  }
+
+  cycleTheme() {
+    this.themeIndex = (this.themeIndex + 1) % themes.length;
+    const theme = themes[this.themeIndex];
+
+    // Brief transition on :root so gradient crossfades smoothly
+    document.documentElement.style.transition = 'background 0.9s ease';
+    this.applyTheme(theme);
+    setTimeout(() => document.documentElement.style.transition = '', 950);
+  }
+
+  /* ------------------------------------------------------------------
+     Share — native share sheet with clipboard fallback
+  ------------------------------------------------------------------ */
+  async shareVerse() {
+    const ref  = `${this.bookEl.textContent} ${this.numEl.textContent}`;
+    const text = [...this.contentEl.querySelectorAll('.word')]
+      .map(w => w.textContent)
+      .join('')
+      .trim();
+
+    const payload = {
+      title: ref,
+      text:  `${ref}\n\n"${text}"`,
+      url:   window.location.href,
+    };
+
+    try {
+      if (navigator.share) {
+        await navigator.share(payload);
+      } else {
+        await navigator.clipboard.writeText(`${payload.text}\n\n${payload.url}`);
+        this.shareBtn.classList.add('shared');
+        this.shareBtn.setAttribute('aria-label', 'Copied to clipboard!');
+        setTimeout(() => {
+          this.shareBtn.classList.remove('shared');
+          this.shareBtn.setAttribute('aria-label', 'Share this verse');
+        }, 2200);
+      }
+    } catch {
+      // User cancelled share or clipboard blocked — fail silently
+    }
+  }
+
+  /* ------------------------------------------------------------------
+     Event wiring
+  ------------------------------------------------------------------ */
+  setupInteractions() {
+    // Refresh
+    this.refreshBtn.addEventListener('click', async () => {
+      if (this.isLoading) return;
+      this.cycleTheme();
+      await this.loadVerse();
+    });
+
+    // Theme cycle (standalone, no verse reload)
+    this.themeBtn.addEventListener('click', () => this.cycleTheme());
+
+    // Share
+    this.shareBtn.addEventListener('click', () => this.shareVerse());
+
+    // Swipe-up gesture for mobile refresh
+    let touchStartY = 0;
+    document.addEventListener('touchstart', e => {
+      touchStartY = e.touches[0].clientY;
+    }, { passive: true });
+
+    document.addEventListener('touchend', e => {
+      const dy = e.changedTouches[0].clientY - touchStartY;
+      if (dy < -70 && !this.isLoading) this.refreshBtn.click();
+    }, { passive: true });
+  }
+
+  /* ------------------------------------------------------------------
+     Entrance — clear the inline opacity/transform set in the HTML
+     to trigger the CSS transition defined in styles.css
+  ------------------------------------------------------------------ */
+  revealCard() {
+    // Two rAFs guarantee a paint has happened before the transition starts
+    requestAnimationFrame(() => {
+      requestAnimationFrame(() => {
+        this.card.style.opacity   = '';
+        this.card.style.transform = '';
+      });
+    });
+  }
+
+  /* ------------------------------------------------------------------
+     Init
+  ------------------------------------------------------------------ */
+  async init() {
+    this.applyTheme(themes[this.themeIndex]);
+    this.setupInteractions();
+    this.revealCard();
+    await this.loadVerse();
+  }
+}
+
+/* ==========================================================================
+   BOOTSTRAP
+   ========================================================================== */
+function bootstrap() {
+  const prefersReducedMotion =
+    window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+  /* God rays */
+  const canvas = document.getElementById('canvasRays');
+  if (canvas && !prefersReducedMotion) new GodRays(canvas);
+
+  /* Particles */
+  const pContainer = document.getElementById('particles');
+  if (pContainer && !prefersReducedMotion) new ParticleSystem(pContainer);
+
+  /* Custom cursor */
+  new MagneticCursor();
+
+  /* Magnetic pull on buttons */
+  if (!window.matchMedia('(hover: none)').matches) {
+    new MagneticButtons('[data-magnetic]');
+  }
+
+  /* 3D card tilt (skip on touch & reduced-motion) */
+  const card = document.getElementById('verseCard');
+  if (card && !window.matchMedia('(hover: none)').matches && !prefersReducedMotion) {
+    new CardTilt(card);
+  }
+
+  /* Main app */
+  const app = new VerseApp();
+  app.init();
+}
+
+/* Kick off after DOM is ready */
 if (document.readyState === 'loading') {
-  document.addEventListener('DOMContentLoaded', initializeApp);
+  document.addEventListener('DOMContentLoaded', bootstrap);
 } else {
-  initializeApp();
+  bootstrap();
 }
