@@ -1,9 +1,32 @@
-const verses = [
-  ["Psalm 23:1–2", "The Lord is my shepherd; I shall not want. He maketh me to lie down in green pastures: he leadeth me beside the still waters."],
-  ["Matthew 11:28", "Come unto me, all ye that labour and are heavy laden, and I will give you rest."],
-  ["Lamentations 3:22–23", "It is of the Lord's mercies that we are not consumed, because his compassions fail not. They are new every morning: great is thy faithfulness."]
-];
+const referenceElement = document.getElementById("verse-reference");
+const contentElement = document.getElementById("verse-content");
 
-const choice = verses[Math.floor(Math.random() * verses.length)];
-document.getElementById("verse-reference").textContent = choice[0];
-document.getElementById("verse-content").textContent = choice[1];
+const fallbackVerse = {
+  reference: "Matthew 11:28",
+  content:
+    "Come to me, all you who are weary and burdened, and I will give you rest.",
+};
+
+async function loadRandomVerse() {
+  referenceElement.textContent = "Loading scripture...";
+  contentElement.textContent = "Gathering a fresh passage for reflection.";
+
+  try {
+    const response = await fetch("https://bible-api.com/data/web/random");
+    if (!response.ok) {
+      throw new Error("Failed to fetch verse");
+    }
+
+    const data = await response.json();
+    const verseReference = `${data.random_verse.book} ${data.random_verse.chapter}:${data.random_verse.verse}`;
+    const verseText = data.random_verse.text.trim();
+
+    referenceElement.textContent = verseReference;
+    contentElement.textContent = verseText;
+  } catch (error) {
+    referenceElement.textContent = fallbackVerse.reference;
+    contentElement.textContent = fallbackVerse.content;
+  }
+}
+
+loadRandomVerse();
