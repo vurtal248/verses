@@ -74,6 +74,23 @@ body::after {
   mask-image: linear-gradient(180deg, transparent, black 24%, black 76%, transparent);
 }
 
+/* Performance optimizations */
+.hero {
+  will-change: transform, opacity;
+}
+
+.verse-card {
+  will-change: transform, backdrop-filter;
+}
+
+/* Modern CSS features */
+@supports (backdrop-filter: blur(12px)) {
+  .verse-card {
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
+  }
+}
+
 .page-shell {
   min-height: 100vh;
   display: grid;
@@ -174,9 +191,77 @@ body::after {
   overflow-wrap: anywhere;
 }
 
+/* Loading states */
+.loading-placeholder {
+  background: linear-gradient(90deg, transparent, var(--text-soft), transparent);
+  background-size: 200% 100%;
+  animation: shimmer 1.5s infinite;
+  border-radius: 4px;
+  opacity: 0.6;
+}
+
+@keyframes shimmer {
+  0% { background-position: -200% 0; }
+  100% { background-position: 200% 0; }
+}
+
+/* Action buttons */
+.verse-card__actions {
+  display: flex;
+  gap: 12px;
+  justify-content: center;
+  margin-top: 32px;
+}
+
+.action-button {
+  background: rgba(255, 255, 255, 0.1);
+  border: 1px solid var(--card-border);
+  border-radius: 50%;
+  width: 44px;
+  height: 44px;
+  display: grid;
+  place-items: center;
+  cursor: pointer;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  color: var(--text-soft);
+}
+
+.action-button:hover {
+  background: rgba(255, 255, 255, 0.15);
+  transform: translateY(-2px);
+}
+
+.action-button:active {
+  transform: translateY(0);
+}
+
+/* Share button */
+.share-button {
+  position: absolute;
+  top: 24px;
+  right: 24px;
+  background: none;
+  border: none;
+  color: var(--text-soft);
+  cursor: pointer;
+  padding: 8px;
+  border-radius: 50%;
+  transition: all 0.3s ease;
+}
+
+.share-button:hover {
+  background: rgba(255, 255, 255, 0.1);
+  transform: rotate(15deg);
+}
+
 :focus-visible {
   outline: 2px solid var(--focus);
   outline-offset: 6px;
+}
+
+.action-button:focus-visible {
+  outline: 2px solid var(--focus);
+  outline-offset: 2px;
 }
 
 @media (max-width: 700px) {
@@ -205,6 +290,81 @@ body::after {
 
   .verse-card__content {
     max-width: 30ch;
+  }
+}
+
+/* Print styles */
+@media print {
+  body {
+    background: white !important;
+    color: black !important;
+  }
+  
+  .hero__atmosphere,
+  .hero__sun,
+  .hero__glow {
+    display: none;
+  }
+  
+  .verse-card {
+    background: white !important;
+    border: 1px solid #ccc !important;
+    box-shadow: none !important;
+    backdrop-filter: none !important;
+  }
+  
+  .verse-card__eyebrow {
+    color: #666 !important;
+  }
+  
+  .verse-card__reference {
+    color: black !important;
+    text-shadow: none !important;
+  }
+  
+  .verse-card__content {
+    color: #333 !important;
+  }
+  
+  .verse-card__actions,
+  .share-button {
+    display: none !important;
+  }
+}
+
+/* Accessibility improvements */
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    scroll-behavior: auto;
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
+  
+  .loading-placeholder {
+    animation: none;
+    background: var(--text-soft);
+  }
+}
+
+/* High contrast mode support */
+@media (prefers-contrast: high) {
+  .verse-card {
+    border: 2px solid var(--text-main);
+  }
+  
+  .action-button {
+    border: 2px solid var(--text-main);
+  }
+  
+  .verse-card__eyebrow {
+    font-weight: 700;
+  }
+  
+  .verse-card__reference {
+    text-shadow: 0 2px 4px rgba(0, 0, 0, 0.5);
   }
 }
 
