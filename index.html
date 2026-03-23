@@ -1,0 +1,41 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Sunset Verses</title>
+    <meta
+      name="description"
+      content="A sunset-inspired Bible verse experience that reveals a new verse every time the page refreshes."
+    />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@500;600;700&family=Manrope:wght@400;500;600&display=swap"
+      rel="stylesheet"
+    />
+    <link rel="stylesheet" href="styles.css" />
+  </head>
+  <body>
+    <main class="page-shell">
+      <section class="hero" aria-labelledby="verse-reference">
+        <div class="hero__atmosphere" aria-hidden="true">
+          <div class="hero__sun"></div>
+          <div class="hero__glow"></div>
+        </div>
+
+        <article class="verse-card" aria-live="polite">
+          <p class="verse-card__eyebrow">Daily Scripture</p>
+          <h1 class="verse-card__reference" id="verse-reference">
+            Loading verse...
+          </h1>
+          <p class="verse-card__content" id="verse-content">
+            Preparing a passage for reflection.
+          </p>
+        </article>
+      </section>
+    </main>
+
+    <script src="script.js"></script>
+  </body>
+</html>
