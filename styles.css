@@ -64,9 +64,6 @@ body {
     );
 
   overflow: hidden;
-
-  /* Hide system cursor — our custom cursor takes over */
-  cursor: none;
 }
 
 /* Film-grain texture overlay via inline SVG noise */
@@ -106,49 +103,6 @@ body::after {
   background-size: 110px 110px;
   /* Fade grid at top and bottom edges */
   mask-image: linear-gradient(180deg, transparent 0%, #000 18%, #000 82%, transparent 100%);
-}
-
-/* ==========================================================================
-   CUSTOM CURSOR
-   ========================================================================== */
-.cursor__dot,
-.cursor__ring {
-  position: fixed;
-  border-radius: 50%;
-  pointer-events: none;
-  /* JS sets left/top; transform centers the element on that point */
-  transform: translate(-50%, -50%);
-  will-change: left, top;
-  z-index: 9999;
-}
-
-.cursor__dot {
-  width: 7px;
-  height: 7px;
-  background: var(--text-main);
-  /* mix-blend-mode: exclusion creates the inverting "spotlight" look on hover */
-  mix-blend-mode: exclusion;
-  z-index: 10001;
-  transition: width 0.2s ease, height 0.2s ease;
-}
-
-.cursor__ring {
-  width: 38px;
-  height: 38px;
-  border: 1px solid rgba(255, 246, 234, 0.45);
-  /* Lagged follow (lerped in JS) makes ring feel physical */
-  transition:
-    width  0.35s cubic-bezier(0.23, 1, 0.32, 1),
-    height 0.35s cubic-bezier(0.23, 1, 0.32, 1),
-    border-color 0.3s ease;
-}
-
-/* States driven by body class (added in JS on hover) */
-body.cursor--hover .cursor__dot  { width: 12px; height: 12px; }
-body.cursor--hover .cursor__ring {
-  width: 58px;
-  height: 58px;
-  border-color: rgba(255, 246, 234, 0.22);
 }
 
 /* ==========================================================================
@@ -462,8 +416,7 @@ body.cursor--hover .cursor__ring {
   border-radius: 50%;
   background: rgba(255, 255, 255, 0.055);
   color: var(--text-soft);
-  /* cursor: none inherits from body for custom cursor; pointer used as fallback */
-  cursor: none;
+  cursor: pointer;
   /* JS handles magnetic offset via style.transform — transitions here provide spring-back */
   transition:
     background 0.3s ease,
@@ -534,11 +487,7 @@ body.cursor--hover .cursor__ring {
 @media (max-width: 640px) {
   body {
     overflow: auto;
-    cursor: auto; /* restore native cursor on mobile */
   }
-
-  /* Hide custom cursor on touch devices */
-  .cursor { display: none; }
 
   .verse-card {
     border-radius: 28px;
@@ -577,7 +526,7 @@ body.cursor--hover .cursor__ring {
    PRINT
    ========================================================================== */
 @media print {
-  .canvas-rays, .particles, .cursor, .grid-overlay,
+  .canvas-rays, .particles, .grid-overlay,
   .card-actions, .ornament, .card-spotlight { display: none; }
 
   body, .verse-card {
