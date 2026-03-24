@@ -108,10 +108,10 @@ class TextScramble {
       this.queue = [];
 
       for (let i = 0; i < len; i++) {
-        const from  = oldText[i] || '';
-        const to    = newText[i] || '';
+        const from = oldText[i] || '';
+        const to = newText[i] || '';
         const start = Math.floor(Math.random() * 8);
-        const end   = start + Math.floor(Math.random() * 14) + 4;
+        const end = start + Math.floor(Math.random() * 14) + 4;
         this.queue.push({ from, to, start, end, char: '' });
       }
 
@@ -165,17 +165,17 @@ class TextScramble {
    ========================================================================== */
 class GodRays {
   constructor(canvas) {
-    this.canvas  = canvas;
-    this.ctx     = canvas.getContext('2d');
-    this.time    = 0;
-    this.animId  = null;
+    this.canvas = canvas;
+    this.ctx = canvas.getContext('2d');
+    this.time = 0;
+    this.animId = null;
 
     // Theme-adaptive ray tint — parsed from CSS custom properties
-    this.rayRgb     = [255, 218, 148]; // fallback: warm amber
+    this.rayRgb = [255, 218, 148]; // fallback: warm amber
     this.rayFadeRgb = [255, 170, 100];
 
-    this.resize  = this.resize.bind(this);
-    this.tick    = this.tick.bind(this);
+    this.resize = this.resize.bind(this);
+    this.tick = this.tick.bind(this);
 
     window.addEventListener('resize', this.resize, { passive: true });
     this.resize();
@@ -199,15 +199,15 @@ class GodRays {
   /** Read --sun-core and --glow-fade from :root to tint rays per theme. */
   updateColors() {
     const styles = getComputedStyle(document.documentElement);
-    this.rayRgb     = GodRays.parseRgb(styles.getPropertyValue('--sun-core').trim(),  [255, 218, 148]);
+    this.rayRgb = GodRays.parseRgb(styles.getPropertyValue('--sun-core').trim(), [255, 218, 148]);
     this.rayFadeRgb = GodRays.parseRgb(styles.getPropertyValue('--glow-fade').trim(), [255, 170, 100]);
   }
 
   resize() {
-    this.canvas.width  = window.innerWidth;
+    this.canvas.width = window.innerWidth;
     this.canvas.height = window.innerHeight;
     // Sun sits at horizontal centre, 82% down the viewport
-    this.sunX = this.canvas.width  / 2;
+    this.sunX = this.canvas.width / 2;
     this.sunY = this.canvas.height * 0.82;
   }
 
@@ -215,12 +215,12 @@ class GodRays {
     const count = 22;
     this.rays = Array.from({ length: count }, (_, i) => ({
       // Spread rays 195°–345° (straight up = 270°) to fan only above the horizon
-      angle:     (195 + (i / (count - 1)) * 150) * (Math.PI / 180),
+      angle: (195 + (i / (count - 1)) * 150) * (Math.PI / 180),
       halfWidth: (Math.random() * 4 + 1.2) * (Math.PI / 180),
-      alpha:      Math.random() * 0.05 + 0.01,
-      phase:      Math.random() * Math.PI * 2,
+      alpha: Math.random() * 0.05 + 0.01,
+      phase: Math.random() * Math.PI * 2,
       // Slightly different speeds give organic, asynchronous pulsing
-      speed:     (Math.random() * 0.28 + 0.08) * 0.001,
+      speed: (Math.random() * 0.28 + 0.08) * 0.001,
     }));
   }
 
@@ -233,7 +233,7 @@ class GodRays {
     if (alpha < 0.005) return; // skip invisible rays for performance
 
     const diag = Math.hypot(canvas.width, canvas.height) * 1.25;
-    const a  = ray.angle;
+    const a = ray.angle;
     const hw = ray.halfWidth;
 
     ctx.save();
@@ -246,15 +246,15 @@ class GodRays {
     // Gradient fades the ray's intensity with distance from the sun
     const endX = sunX + Math.cos(a) * diag * 0.55;
     const endY = sunY + Math.sin(a) * diag * 0.55;
-    const [r, g, b]       = rayRgb;
-    const [fr, fg, fb]    = rayFadeRgb;
+    const [r, g, b] = rayRgb;
+    const [fr, fg, fb] = rayFadeRgb;
     const midR = Math.round((r + fr) / 2);
     const midG = Math.round((g + fg) / 2);
     const midB = Math.round((b + fb) / 2);
     const grad = ctx.createLinearGradient(sunX, sunY, endX, endY);
-    grad.addColorStop(0,    `rgba(${r},${g},${b},${alpha})`);
+    grad.addColorStop(0, `rgba(${r},${g},${b},${alpha})`);
     grad.addColorStop(0.35, `rgba(${midR},${midG},${midB},${alpha * 0.45})`);
-    grad.addColorStop(1,    `rgba(${fr},${fg},${fb},0)`);
+    grad.addColorStop(1, `rgba(${fr},${fg},${fb},0)`);
 
     ctx.fillStyle = grad;
     ctx.fill();
@@ -287,15 +287,15 @@ class ParticleSystem {
   }
 
   buildParticle() {
-    const el   = document.createElement('span');
+    const el = document.createElement('span');
     el.className = 'particle';
 
-    const size     = Math.random() * 2.5 + 0.7;
-    const x        = Math.random() * 100;       // % from left
-    const bottom   = Math.random() * 35 + 5;    // % from bottom
+    const size = Math.random() * 2.5 + 0.7;
+    const x = Math.random() * 100;       // % from left
+    const bottom = Math.random() * 35 + 5;    // % from bottom
     const duration = Math.random() * 12 + 8;    // seconds
-    const delay    = -(Math.random() * duration); // negative = already mid-flight
-    const drift    = (Math.random() - 0.5) * 70; // px horizontal drift
+    const delay = -(Math.random() * duration); // negative = already mid-flight
+    const drift = (Math.random() - 0.5) * 70; // px horizontal drift
 
     el.style.cssText = `
       width: ${size}px;
@@ -324,7 +324,7 @@ class MagneticButtons {
   constructor(selector) {
     this.buttons = [...document.querySelectorAll(selector)];
     this.strength = 0.38; // how strongly buttons pull toward cursor (0–1)
-    this.radius   = 80;   // px proximity threshold
+    this.radius = 80;   // px proximity threshold
     this.init();
   }
 
@@ -333,10 +333,10 @@ class MagneticButtons {
     document.addEventListener('mousemove', e => {
       for (const btn of this.buttons) {
         const rect = btn.getBoundingClientRect();
-        const cx   = rect.left + rect.width  / 2;
-        const cy   = rect.top  + rect.height / 2;
-        const dx   = e.clientX - cx;
-        const dy   = e.clientY - cy;
+        const cx = rect.left + rect.width / 2;
+        const cy = rect.top + rect.height / 2;
+        const dx = e.clientX - cx;
+        const dy = e.clientY - cy;
         const dist = Math.hypot(dx, dy);
 
         if (dist < this.radius) {
@@ -358,6 +358,72 @@ class MagneticButtons {
 }
 
 /* ==========================================================================
+   BUTTON RIPPLE — tactile click feedback
+   Injects a scaling circle at click position, then removes it.
+   ========================================================================== */
+class ButtonRipple {
+  constructor(selector) {
+    this.buttons = [...document.querySelectorAll(selector)];
+    this.init();
+  }
+
+  init() {
+    this.buttons.forEach(btn => {
+      btn.addEventListener('click', e => {
+        const rect = btn.getBoundingClientRect();
+        const x = e.clientX - rect.left;
+        const y = e.clientY - rect.top;
+        const size = Math.max(rect.width, rect.height);
+
+        const ripple = document.createElement('span');
+        ripple.className = 'btn-ripple';
+        ripple.style.cssText = `
+          width: ${size}px;
+          height: ${size}px;
+          left: ${x - size / 2}px;
+          top: ${y - size / 2}px;
+        `;
+
+        btn.appendChild(ripple);
+        // Clean up after animation
+        ripple.addEventListener('animationend', () => ripple.remove());
+      });
+    });
+  }
+}
+
+/* ==========================================================================
+   STAR BURST — delight moment on theme cycle
+   Spawns tiny particles from a button center that radiate outward and fade.
+   ========================================================================== */
+class StarBurst {
+  static emit(button, count = 10) {
+    const rect = button.getBoundingClientRect();
+    const cx = rect.left + rect.width / 2;
+    const cy = rect.top + rect.height / 2;
+
+    for (let i = 0; i < count; i++) {
+      const angle = (Math.PI * 2 * i) / count + (Math.random() - 0.5) * 0.4;
+      const dist = 28 + Math.random() * 32; // px travel distance
+      const bx = Math.cos(angle) * dist;
+      const by = Math.sin(angle) * dist;
+
+      const dot = document.createElement('span');
+      dot.className = 'star-burst-particle';
+      dot.style.cssText = `
+        left: ${cx}px;
+        top: ${cy}px;
+        --burst-x: ${bx}px;
+        --burst-y: ${by}px;
+        animation-delay: ${Math.random() * 0.08}s;
+      `;
+      document.body.appendChild(dot);
+      dot.addEventListener('animationend', () => dot.remove());
+    }
+  }
+}
+
+/* ==========================================================================
    CARD TILT — 3D perspective tilt following the cursor inside the card.
 
    Implementation detail:
@@ -369,30 +435,30 @@ class MagneticButtons {
    ========================================================================== */
 class CardTilt {
   constructor(card) {
-    this.card       = card;
-    this.spotlight  = card.querySelector('.card-spotlight');
-    this.maxTilt    = 5; // degrees
+    this.card = card;
+    this.spotlight = card.querySelector('.card-spotlight');
+    this.maxTilt = 5; // degrees
 
-    this.onMove  = this.onMove.bind(this);
+    this.onMove = this.onMove.bind(this);
     this.onLeave = this.onLeave.bind(this);
 
-    card.addEventListener('mousemove',  this.onMove);
+    card.addEventListener('mousemove', this.onMove);
     card.addEventListener('mouseleave', this.onLeave);
   }
 
   onMove(e) {
     const rect = this.card.getBoundingClientRect();
-    const cx   = rect.left + rect.width  / 2;
-    const cy   = rect.top  + rect.height / 2;
-    const dx   = (e.clientX - cx) / (rect.width  / 2); // -1 … +1
-    const dy   = (e.clientY - cy) / (rect.height / 2); // -1 … +1
+    const cx = rect.left + rect.width / 2;
+    const cy = rect.top + rect.height / 2;
+    const dx = (e.clientX - cx) / (rect.width / 2); // -1 … +1
+    const dy = (e.clientY - cy) / (rect.height / 2); // -1 … +1
 
     const rotX = -dy * this.maxTilt;
-    const rotY =  dx * this.maxTilt;
+    const rotY = dx * this.maxTilt;
 
     // transition: none so the tilt tracks the cursor instantly
     this.card.style.transition = 'none';
-    this.card.style.transform  =
+    this.card.style.transform =
       `perspective(1400px) rotateX(${rotX}deg) rotateY(${rotY}deg) translateZ(10px)`;
 
     // Update card spotlight coordinates
@@ -405,7 +471,7 @@ class CardTilt {
   onLeave() {
     // Restore transition for smooth spring-back to flat
     this.card.style.transition = 'transform 0.75s cubic-bezier(0.23, 1, 0.32, 1)';
-    this.card.style.transform  = '';
+    this.card.style.transform = '';
 
     setTimeout(() => {
       // Clear transition so entrance/loading transforms aren't affected later
@@ -421,26 +487,27 @@ class CardTilt {
    ========================================================================== */
 class VerseApp {
   constructor() {
-    this.bookEl     = document.getElementById('verseBook');
-    this.numEl      = document.getElementById('verseNum');
-    this.contentEl  = document.getElementById('verse-content');
-    this.card       = document.getElementById('verseCard');
+    this.bookEl = document.getElementById('verseBook');
+    this.numEl = document.getElementById('verseNum');
+    this.contentEl = document.getElementById('verse-content');
+    this.card = document.getElementById('verseCard');
     this.refreshBtn = document.getElementById('refreshBtn');
-    this.themeBtn   = document.getElementById('themeBtn');
-    this.shareBtn   = document.getElementById('shareBtn');
+    this.themeBtn = document.getElementById('themeBtn');
+    this.shareBtn = document.getElementById('shareBtn');
 
     this.bookScramble = new TextScramble(this.bookEl);
-    this.numScramble  = new TextScramble(this.numEl);
+    this.numScramble = new TextScramble(this.numEl);
 
     this.themeIndex = 1; // start on Sunset Dusk
-    this.isLoading  = false;
+    this.isLoading = false;
+    this.hasCompletedEntrance = false;
 
     // Persist up to 15 verses for offline fallback
     this.cache = JSON.parse(localStorage.getItem('vrs_cache') || '[]');
 
     this.fallback = {
       reference: 'Matthew 11:28',
-      content:   'Come to me, all you who are weary and burdened, and I will give you rest.',
+      content: 'Come to me, all you who are weary and burdened, and I will give you rest.',
     };
   }
 
@@ -462,10 +529,10 @@ class VerseApp {
       const res = await fetch('https://bible-api.com/data/web/random');
       if (!res.ok) throw new Error(`HTTP ${res.status}`);
       const data = await res.json();
-      const rv   = data.random_verse;
+      const rv = data.random_verse;
       return {
         reference: `${rv.book} ${rv.chapter}:${rv.verse}`,
-        content:   rv.text.trim(),
+        content: rv.text.trim(),
       };
     } catch {
       return null; // caller handles null → fallback
@@ -522,8 +589,8 @@ class VerseApp {
      Delay is capped so very long verses don't drag on forever.
   ------------------------------------------------------------------ */
   animateWords(text) {
-    const words  = text.split(' ');
-    const cap    = 1.4; // seconds — max total stagger duration
+    const words = text.split(' ');
+    const cap = 1.4; // seconds — max total stagger duration
 
     const html = words.map((word, i) => {
       const delay = Math.min(i * 0.038, cap);
@@ -554,7 +621,7 @@ class VerseApp {
      Share — native share sheet with clipboard fallback
   ------------------------------------------------------------------ */
   async shareVerse() {
-    const ref  = `${this.bookEl.textContent} ${this.numEl.textContent}`;
+    const ref = `${this.bookEl.textContent} ${this.numEl.textContent}`;
     const text = [...this.contentEl.querySelectorAll('.word')]
       .map(w => w.textContent)
       .join('')
@@ -562,8 +629,8 @@ class VerseApp {
 
     const payload = {
       title: ref,
-      text:  `${ref}\n\n"${text}"`,
-      url:   window.location.href,
+      text: `${ref}\n\n"${text}"`,
+      url: window.location.href,
     };
 
     try {
@@ -594,8 +661,11 @@ class VerseApp {
       await this.loadVerse();
     });
 
-    // Theme cycle (standalone, no verse reload)
-    this.themeBtn.addEventListener('click', () => this.cycleTheme());
+    // Theme cycle (standalone, no verse reload) — with star burst delight
+    this.themeBtn.addEventListener('click', () => {
+      this.cycleTheme();
+      StarBurst.emit(this.themeBtn, 10);
+    });
 
     // Share
     this.shareBtn.addEventListener('click', () => this.shareVerse());
@@ -613,15 +683,27 @@ class VerseApp {
   }
 
   /* ------------------------------------------------------------------
-     Entrance — clear the inline opacity/transform set in the HTML
-     to trigger the CSS transition defined in styles.css
+     Entrance — orchestrated cinematic reveal sequence
+     1. Loader fades out
+     2. Card fades up (CSS transition via inline style removal)
+     3. Inner elements cascade in (CSS entrance-play class)
   ------------------------------------------------------------------ */
   revealCard() {
+    // Mark card children as ready for entrance (hidden via CSS)
+    this.card.classList.add('entrance-ready');
+
     // Two rAFs guarantee a paint has happened before the transition starts
     requestAnimationFrame(() => {
       requestAnimationFrame(() => {
-        this.card.style.opacity   = '';
+        // Trigger card fade-up
+        this.card.style.opacity = '';
         this.card.style.transform = '';
+
+        // After card settles, trigger the inner cascade
+        setTimeout(() => {
+          this.card.classList.add('entrance-play');
+          this.hasCompletedEntrance = true;
+        }, 400);
       });
     });
   }
@@ -632,6 +714,19 @@ class VerseApp {
   async init() {
     applyTheme(themes[this.themeIndex]);
     this.setupInteractions();
+
+    // Wait for fonts before revealing
+    await document.fonts.ready;
+
+    // Dismiss the page loader
+    const loader = document.getElementById('pageLoader');
+    if (loader) {
+      loader.classList.add('is-hidden');
+      // Remove from DOM after transition
+      loader.addEventListener('transitionend', () => loader.remove(), { once: true });
+    }
+
+    // Begin entrance
     this.revealCard();
     await this.loadVerse();
   }
@@ -657,6 +752,9 @@ function bootstrap() {
   if (!window.matchMedia('(hover: none)').matches) {
     new MagneticButtons('[data-magnetic]');
   }
+
+  /* Button ripple feedback */
+  new ButtonRipple('[data-magnetic]');
 
   /* 3D card tilt (skip on touch & reduced-motion) */
   const card = document.getElementById('verseCard');
