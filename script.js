@@ -318,6 +318,60 @@ class ParticleSystem {
 }
 
 /* ==========================================================================
+   CUSTOM CURSOR — Agency-level interaction dot and ring
+   ========================================================================== */
+class CustomCursor {
+  constructor() {
+    this.dot = document.getElementById('cursorDot');
+    this.ring = document.getElementById('cursorRing');
+    if (!this.dot || !this.ring) return;
+
+    this.mouse = { x: window.innerWidth / 2, y: window.innerHeight / 2 };
+    this.pos = { dotX: this.mouse.x, dotY: this.mouse.y, ringX: this.mouse.x, ringY: this.mouse.y };
+    this.active = false;
+
+    // Destroy on touch devices
+    if (window.matchMedia('(hover: none)').matches) return;
+    
+    document.body.classList.add('has-custom-cursor');
+
+    window.addEventListener('mousemove', e => {
+      this.mouse.x = e.clientX;
+      this.mouse.y = e.clientY;
+      if (!this.active) {
+        this.dot.style.opacity = 1;
+        this.ring.style.opacity = 1;
+        this.active = true;
+      }
+    }, { passive: true });
+
+    document.querySelectorAll('button, a, .verse-card').forEach(el => {
+      el.addEventListener('mouseenter', () => this.ring.classList.add('is-hover'));
+      el.addEventListener('mouseleave', () => this.ring.classList.remove('is-hover'));
+    });
+
+    document.addEventListener('mousedown', () => this.ring.classList.add('is-active'));
+    document.addEventListener('mouseup', () => this.ring.classList.remove('is-active'));
+
+    this.tick = this.tick.bind(this);
+    requestAnimationFrame(this.tick);
+  }
+
+  tick() {
+    // Lerp algorithm for smooth trailing
+    this.pos.dotX += (this.mouse.x - this.pos.dotX) * 0.25;
+    this.pos.dotY += (this.mouse.y - this.pos.dotY) * 0.25;
+    this.pos.ringX += (this.mouse.x - this.pos.ringX) * 0.12;
+    this.pos.ringY += (this.mouse.y - this.pos.ringY) * 0.12;
+
+    this.dot.style.transform = `translate3d(${this.pos.dotX}px, ${this.pos.dotY}px, 0)`;
+    this.ring.style.transform = `translate3d(${this.pos.ringX}px, ${this.pos.ringY}px, 0)`;
+
+    requestAnimationFrame(this.tick);
+  }
+}
+
+/* ==========================================================================
    MAGNETIC BUTTONS — buttons drift toward the cursor when nearby
    ========================================================================== */
 class MagneticButtons {
@@ -342,8 +396,14 @@ class MagneticButtons {
         if (dist < this.radius) {
           const pull = (1 - dist / this.radius) * this.strength;
           btn.style.transform = `translate(${dx * pull}px, ${dy * pull}px)`;
+          const icon = btn.querySelector('svg');
+          if (icon) {
+            icon.style.transform = `translate(${dx * pull * 0.3}px, ${dy * pull * 0.3}px) scale(1.14)`;
+          }
         } else {
           btn.style.transform = '';
+          const icon = btn.querySelector('svg');
+          if (icon) icon.style.transform = '';
         }
       }
     });
@@ -352,6 +412,8 @@ class MagneticButtons {
     this.buttons.forEach(btn => {
       btn.addEventListener('mouseleave', () => {
         btn.style.transform = '';
+        const icon = btn.querySelector('svg');
+        if (icon) icon.style.transform = '';
       });
     });
   }
@@ -590,11 +652,11 @@ class VerseApp {
   ------------------------------------------------------------------ */
   animateWords(text) {
     const words = text.split(' ');
-    const cap = 1.4; // seconds — max total stagger duration
+    const cap = 1.25; // seconds — max total stagger duration
 
     const html = words.map((word, i) => {
-      const delay = Math.min(i * 0.038, cap);
-      return `<span class="word" style="animation-delay:${delay}s">${word} </span>`;
+      const delay = Math.min(i * 0.045, cap);
+      return `<span class="word-wrapper"><span class="word" style="animation-delay:${delay}s">${word}</span></span> `;
     }).join('');
 
     this.contentEl.innerHTML = html;
@@ -755,6 +817,9 @@ function bootstrap() {
 
   /* Button ripple feedback */
   new ButtonRipple('[data-magnetic]');
+
+  /* Custom Cursor */
+  if (!prefersReducedMotion) new CustomCursor();
 
   /* 3D card tilt (skip on touch & reduced-motion) */
   const card = document.getElementById('verseCard');
