@@ -124,11 +124,13 @@ body::after {
   display: grid;
   place-items: center;
   background: var(--bg-top);
-  transition: opacity 0.8s cubic-bezier(0.22, 1, 0.36, 1),
-    visibility 0.8s;
+  transition: clip-path 1.2s cubic-bezier(0.19, 1, 0.22, 1), opacity 1.2s ease, visibility 1.2s;
+  clip-path: inset(0 0 0 0);
+  will-change: clip-path, opacity;
 }
 
 .page-loader.is-hidden {
+  clip-path: inset(0 0 100% 0);
   opacity: 0;
   visibility: hidden;
   pointer-events: none;
@@ -499,8 +501,8 @@ body::after {
   font-size: var(--fs-num);
   font-weight: 300;
   /* Tighter editorial line-height and letter-spacing for maximum impact */
-  line-height: 0.85;
-  letter-spacing: -0.035em;
+  line-height: 0.8;
+  letter-spacing: -0.045em;
   color: var(--text-main);
   text-shadow:
     0 12px 60px rgba(12, 2, 12, 0.45),
@@ -565,23 +567,33 @@ body::after {
 }
 
 /* Individual word spans injected by JS — fade + subtle rise */
-.verse-text .word {
-  display: inline;
-  opacity: 0;
-  transform: translateY(6px);
-  /* Each word has an inline animation-delay for the wave-in effect */
-  animation: word-rise 0.5s cubic-bezier(0.22, 1, 0.36, 1) forwards;
+.verse-text .word-wrapper {
+  display: inline-flex;
+  overflow: hidden;
+  padding: 0.15em 0;
+  margin-top: -0.15em;
+  margin-bottom: -0.15em;
+  vertical-align: top;
 }
 
-@keyframes word-rise {
+.verse-text .word {
+  display: inline-block;
+  opacity: 0;
+  transform: translateY(110%) rotate(4deg);
+  transform-origin: top left;
+  animation: word-reveal 0.85s cubic-bezier(0.19, 1, 0.22, 1) forwards;
+  will-change: transform, opacity;
+}
+
+@keyframes word-reveal {
   from {
     opacity: 0;
-    transform: translateY(6px);
+    transform: translateY(110%) rotate(4deg);
   }
 
   to {
     opacity: 1;
-    transform: translateY(0);
+    transform: translateY(0) rotate(0deg);
   }
 }
 
@@ -646,8 +658,8 @@ body::after {
   color: var(--text-main);
   /* 2-layer shadow: soft diffuse + tight specular rim */
   box-shadow:
-    0 8px 32px rgba(255, 200, 120, 0.08),
-    0 2px 8px rgba(255, 220, 160, 0.12);
+    0 8px 32px rgba(255, 200, 120, 0.12),
+    0 2px 10px rgba(255, 220, 160, 0.18);
 }
 
 .mag-btn:hover svg {
@@ -720,12 +732,14 @@ body::after {
 @keyframes star-burst {
   0% {
     opacity: 0.9;
-    transform: translate(0, 0) scale(1);
+    transform: translate(0, 0) scale(1.5);
+    box-shadow: 0 0 8px var(--sun-core);
   }
 
   100% {
     opacity: 0;
-    transform: translate(var(--burst-x), var(--burst-y)) scale(0.3);
+    transform: translate(var(--burst-x), var(--burst-y)) scale(0.1);
+    box-shadow: 0 0 0 var(--sun-core);
   }
 }
 
@@ -802,8 +816,71 @@ body::after {
   .entrance-ready .card-actions {
     opacity: 1 !important;
   }
+
+  .cursor-dot, .cursor-ring { display: none !important; }
+  body.has-custom-cursor, body.has-custom-cursor * { cursor: auto !important; }
 }
 
+/* ==========================================================================
+   CUSTOM CURSOR
+   ========================================================================== */
+.cursor-dot, .cursor-ring {
+  position: fixed;
+  top: 0; left: 0;
+  pointer-events: none;
+  z-index: 10000;
+  border-radius: 50%;
+  transform: translate3d(-100px, -100px, 0);
+  opacity: 0;
+  transition: opacity 0.5s cubic-bezier(0.19, 1, 0.22, 1);
+  will-change: transform, opacity;
+}
+
+.cursor-dot {
+  width: 6px;
+  height: 6px;
+  background: var(--sun-core);
+  margin: -3px 0 0 -3px;
+  box-shadow: 0 0 10px var(--sun-core);
+}
+
+.cursor-ring {
+  width: 38px;
+  height: 38px;
+  border: 1px solid rgba(255, 244, 229, 0.25);
+  margin: -19px 0 0 -19px;
+  transition: 
+    width 0.4s cubic-bezier(0.19, 1, 0.22, 1),
+    height 0.4s cubic-bezier(0.19, 1, 0.22, 1),
+    margin 0.4s cubic-bezier(0.19, 1, 0.22, 1),
+    border-color 0.4s ease,
+    background 0.4s ease,
+    opacity 0.5s cubic-bezier(0.19, 1, 0.22, 1);
+}
+
+.cursor-ring.is-hover {
+  width: 60px;
+  height: 60px;
+  margin: -30px 0 0 -30px;
+  border-color: rgba(255, 244, 229, 0.08);
+  background: rgba(255, 244, 229, 0.04);
+  backdrop-filter: blur(2px);
+  -webkit-backdrop-filter: blur(2px);
+}
+
+.cursor-ring.is-active {
+  width: 28px;
+  height: 28px;
+  margin: -14px 0 0 -14px;
+}
+
+/* Hide default cursor only if our custom cursor is active */
+body.has-custom-cursor {
+  cursor: none;
+}
+body.has-custom-cursor * {
+  cursor: none !important;
+}
 @media (prefers-contrast: high) {
   .verse-card {
     border: 2px solid var(--text-main);
