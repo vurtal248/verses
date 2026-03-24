@@ -4,48 +4,75 @@
    ========================================================================== */
 :root {
   /* Default: Sunset Dusk */
-  --bg-top:         #21111f;
-  --bg-mid:         #5f2940;
-  --bg-accent:      #a84f4a;
-  --bg-bottom:      #f08c4e;
-  --horizon-glow:   rgba(255, 147, 83, 0.82);
-  --horizon-haze:   rgba(255, 205, 142, 0.32);
-  --sun-core:       #ffd08a;
-  --sun-mid:        rgba(255, 209, 138, 0.95);
-  --sun-fade:       rgba(255, 164, 104, 0.62);
-  --glow-core:      rgba(255, 207, 142, 0.45);
-  --glow-fade:      rgba(255, 170, 103, 0.24);
-  --text-main:      #fff6ea;
-  --text-soft:      rgba(255, 246, 234, 0.68);
-  --card-border:    rgba(255, 244, 229, 0.11);
-  --card-bg-a:      rgba(40, 14, 30, 0.38);
-  --card-bg-b:      rgba(20, 7, 18, 0.22);
-  --shadow:         0 32px 100px rgba(14, 3, 13, 0.58),
-                    0 8px 28px  rgba(14, 3, 13, 0.32);
-  --focus:          #ffe1a8;
+  --bg-top: #21111f;
+  --bg-mid: #5f2940;
+  --bg-accent: #a84f4a;
+  --bg-bottom: #f08c4e;
+  --horizon-glow: rgba(255, 147, 83, 0.82);
+  --horizon-haze: rgba(255, 205, 142, 0.32);
+  --sun-core: #ffd08a;
+  --sun-mid: rgba(255, 209, 138, 0.95);
+  --sun-fade: rgba(255, 164, 104, 0.62);
+  --glow-core: rgba(255, 207, 142, 0.45);
+  --glow-fade: rgba(255, 170, 103, 0.24);
+  --text-main: #fff6ea;
+  --text-soft: rgba(255, 246, 234, 0.68);
+  --card-border: rgba(255, 244, 229, 0.11);
+  --card-bg-a: rgba(40, 14, 30, 0.38);
+  --card-bg-b: rgba(20, 7, 18, 0.22);
+  --shadow: 0 32px 100px rgba(14, 3, 13, 0.58),
+    0 8px 28px rgba(14, 3, 13, 0.32);
+  --focus: #ffe1a8;
 
   /* Mouse spotlight coordinates (updated by JS on mousemove) */
   --mouse-x: 50%;
   --mouse-y: 50%;
 
   /* Fluid type scale */
-  --fs-num:   clamp(3.8rem, 13.5vw, 9.8rem);
-  --fs-book:  clamp(0.58rem, 1.4vw, 0.72rem);
+  --fs-num: clamp(3.8rem, 13.5vw, 9.8rem);
+  --fs-book: clamp(0.58rem, 1.4vw, 0.72rem);
   --fs-verse: clamp(1rem, 2vw, 1.18rem);
-  --fs-eye:   clamp(0.6rem, 1.3vw, 0.68rem);
+  --fs-eye: clamp(0.6rem, 1.3vw, 0.68rem);
+
+  /* Base-8 spacing scale for spatial consistency */
+  --sp-1: 0.5rem;
+  /*  8px */
+  --sp-2: 1rem;
+  /* 16px */
+  --sp-3: 1.5rem;
+  /* 24px */
+  --sp-4: 2rem;
+  /* 32px */
+  --sp-5: 2.5rem;
+  /* 40px */
+  --sp-6: 3rem;
+  /* 48px */
+  --sp-7: 3.5rem;
+  /* 56px */
+  --sp-8: 4rem;
+  /* 64px */
 }
 
 /* ==========================================================================
    RESET
    ========================================================================== */
-*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
 
 ::selection {
   background: rgba(255, 219, 158, 0.25);
   color: var(--text-main);
 }
 
-html { min-height: 100%; }
+html {
+  min-height: 100%;
+  scroll-behavior: smooth;
+}
 
 body {
   min-height: 100vh;
@@ -57,11 +84,10 @@ body {
     radial-gradient(ellipse 65% 28% at 50% 100%, var(--horizon-glow), transparent),
     radial-gradient(ellipse 90% 18% at 50% 92%, var(--horizon-haze), transparent),
     linear-gradient(180deg,
-      var(--bg-top)    0%,
-      var(--bg-mid)   50%,
+      var(--bg-top) 0%,
+      var(--bg-mid) 50%,
       var(--bg-accent) 74%,
-      var(--bg-bottom) 100%
-    );
+      var(--bg-bottom) 100%);
 
   overflow: hidden;
 }
@@ -89,6 +115,49 @@ body::after {
 }
 
 /* ==========================================================================
+   PAGE LOADER — cinematic entrance overlay
+   ========================================================================== */
+.page-loader {
+  position: fixed;
+  inset: 0;
+  z-index: 9999;
+  display: grid;
+  place-items: center;
+  background: var(--bg-top);
+  transition: opacity 0.8s cubic-bezier(0.22, 1, 0.36, 1),
+    visibility 0.8s;
+}
+
+.page-loader.is-hidden {
+  opacity: 0;
+  visibility: hidden;
+  pointer-events: none;
+}
+
+/* Pulsing ornament inside the loader */
+.loader-ornament {
+  width: 48px;
+  height: 48px;
+  color: var(--text-soft);
+  animation: loader-pulse 1.8s cubic-bezier(0.45, 0, 0.55, 1) infinite;
+  will-change: transform, opacity;
+}
+
+@keyframes loader-pulse {
+
+  0%,
+  100% {
+    opacity: 0.3;
+    transform: scale(0.92);
+  }
+
+  50% {
+    opacity: 0.7;
+    transform: scale(1.08);
+  }
+}
+
+/* ==========================================================================
    GRID OVERLAY — faint Cartesian grid for depth
    ========================================================================== */
 .grid-overlay {
@@ -98,8 +167,8 @@ body::after {
   z-index: 1;
   opacity: 0.022;
   background-image:
-    linear-gradient(rgba(255,255,255,0.14) 1px, transparent 1px),
-    linear-gradient(90deg, rgba(255,255,255,0.14) 1px, transparent 1px);
+    linear-gradient(rgba(255, 255, 255, 0.14) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(255, 255, 255, 0.14) 1px, transparent 1px);
   background-size: 110px 110px;
   /* Fade grid at top and bottom edges */
   -webkit-mask-image: linear-gradient(180deg, transparent 0%, #000 18%, #000 82%, transparent 100%);
@@ -145,10 +214,123 @@ body::after {
 }
 
 @keyframes particle-rise {
-  0%   { transform: translateY(0) translateX(0);              opacity: 0; }
-  8%   { opacity: 0.85; }
-  85%  { opacity: 0.5; }
-  100% { transform: translateY(-75vh) translateX(var(--drift)); opacity: 0; }
+  0% {
+    transform: translateY(0) translateX(0);
+    opacity: 0;
+  }
+
+  8% {
+    opacity: 0.85;
+  }
+
+  85% {
+    opacity: 0.5;
+  }
+
+  100% {
+    transform: translateY(-75vh) translateX(var(--drift));
+    opacity: 0;
+  }
+}
+
+/* ==========================================================================
+   ENTRANCE ANIMATIONS — orchestrated cascade
+   GPU-composited: only transform + opacity are animated.
+   ========================================================================== */
+@keyframes fade-up {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes fade-up-subtle {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes clip-reveal-h {
+  from {
+    clip-path: inset(0 50% 0 50%);
+  }
+
+  to {
+    clip-path: inset(0 0% 0 0%);
+  }
+}
+
+@keyframes scale-in {
+  from {
+    opacity: 0;
+    transform: scale(0.7);
+  }
+
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+/* Top rim light shimmer — slow sweep for ambient life */
+@keyframes rim-shimmer {
+
+  0%,
+  100% {
+    opacity: 0.7;
+    width: 50%;
+  }
+
+  50% {
+    opacity: 1;
+    width: 62%;
+  }
+}
+
+/* Initially hide elements that will be animated in by JS */
+.entrance-ready .ornament,
+.entrance-ready .eyebrow,
+.entrance-ready .verse-ref,
+.entrance-ready .verse-rule,
+.entrance-ready .card-actions {
+  opacity: 0;
+  will-change: transform, opacity;
+}
+
+/* When entrance trigger fires, each element animates with its own delay */
+.entrance-play .ornament {
+  animation: fade-up-subtle 0.7s cubic-bezier(0.22, 1, 0.36, 1) 0.15s forwards;
+}
+
+.entrance-play .eyebrow {
+  animation: fade-up-subtle 0.6s cubic-bezier(0.22, 1, 0.36, 1) 0.25s forwards;
+}
+
+.entrance-play .verse-ref {
+  animation: fade-up 0.8s cubic-bezier(0.22, 1, 0.36, 1) 0.35s forwards;
+}
+
+.entrance-play .verse-rule {
+  animation: clip-reveal-h 0.9s cubic-bezier(0.22, 1, 0.36, 1) 0.55s forwards;
+}
+
+.entrance-play .card-actions {
+  animation: fade-up-subtle 0.6s cubic-bezier(0.22, 1, 0.36, 1) 0.7s forwards;
+}
+
+.entrance-play .ornament--sm {
+  animation: fade-up-subtle 0.6s cubic-bezier(0.22, 1, 0.36, 1) 0.8s forwards;
 }
 
 /* ==========================================================================
@@ -159,7 +341,7 @@ body::after {
   min-height: 100vh;
   display: grid;
   place-items: center;
-  padding: clamp(1.5rem, 4vw, 3rem);
+  padding: clamp(var(--sp-3), 4vw, var(--sp-6));
   z-index: 5;
 }
 
@@ -175,7 +357,8 @@ body::after {
 .verse-card {
   position: relative;
   width: min(100%, 780px);
-  padding: clamp(2.4rem, 6.5vw, 4.8rem) clamp(1.8rem, 5.5vw, 4.2rem);
+  /* Slightly more generous vertical padding for breathing room (base-8 aligned) */
+  padding: clamp(var(--sp-5), 6.5vw, 5.2rem) clamp(var(--sp-4), 5.5vw, 4.5rem);
 
   border: 1px solid var(--card-border);
   border-radius: 38px;
@@ -190,6 +373,8 @@ body::after {
   text-align: center;
   /* isolate stacking context so z-index children work correctly */
   isolation: isolate;
+  /* Contain paint for performance isolation */
+  contain: layout style paint;
 
   /* Transition handles BOTH the entrance reveal AND the tilt-return snap.
      JS sets transition:none on mousemove (so tilt is instant) and
@@ -209,15 +394,16 @@ body::after {
   transform: translateX(-50%);
   width: 55%;
   height: 1px;
-  background: linear-gradient(
-    90deg,
-    transparent,
-    var(--glow-core) 40%,
-    var(--glow-core) 60%,
-    transparent
-  );
+  background: linear-gradient(90deg,
+      transparent,
+      var(--glow-core) 40%,
+      var(--glow-core) 60%,
+      transparent);
   border-radius: 999px;
   pointer-events: none;
+  /* Shimmer animation for ambient life */
+  animation: rim-shimmer 6s ease-in-out infinite;
+  will-change: opacity, width;
 }
 
 /* Inner border highlight — second layer of depth */
@@ -239,11 +425,9 @@ body::after {
   border-radius: inherit;
   pointer-events: none;
   z-index: 0;
-  background: radial-gradient(
-    700px circle at var(--mouse-x) var(--mouse-y),
-    rgba(255, 218, 148, 0.075),
-    transparent 55%
-  );
+  background: radial-gradient(700px circle at var(--mouse-x) var(--mouse-y),
+      rgba(255, 218, 148, 0.075),
+      transparent 55%);
 }
 
 /* ==========================================================================
@@ -252,13 +436,13 @@ body::after {
 .ornament {
   display: block;
   width: min(100%, 220px);
-  margin: 0 auto 1.8rem;
+  margin: 0 auto var(--sp-4);
   color: var(--text-main);
   /* currentColor lets SVG strokes/fills inherit from the element */
 }
 
 .ornament--sm {
-  margin: 1.6rem auto 0;
+  margin: var(--sp-4) auto 0;
   width: 120px;
 }
 
@@ -268,10 +452,10 @@ body::after {
 .eyebrow {
   font-size: var(--fs-eye);
   font-weight: 500;
-  letter-spacing: 0.32em;
+  letter-spacing: 0.36em;
   text-transform: uppercase;
   color: var(--text-soft);
-  margin-bottom: 1.6rem;
+  margin-bottom: var(--sp-3);
   position: relative;
   z-index: 1;
 }
@@ -286,7 +470,7 @@ body::after {
   flex-direction: column;
   align-items: center;
   gap: 0.1rem;
-  margin-bottom: 0.6rem;
+  margin-bottom: var(--sp-1);
 }
 
 /* Book name: ultra-tracked, micro */
@@ -301,7 +485,6 @@ body::after {
   line-height: 1;
   /* Reserve height during loading to avoid layout shift */
   min-height: 1em;
-  /* Scramble chars rendered as opacity-reduced characters */
 }
 
 .verse-ref__book .scramble-char {
@@ -315,12 +498,13 @@ body::after {
   font-family: "Cormorant Garamond", serif;
   font-size: var(--fs-num);
   font-weight: 300;
-  line-height: 0.88;
-  letter-spacing: -0.02em;
+  /* Tighter editorial line-height and letter-spacing for maximum impact */
+  line-height: 0.85;
+  letter-spacing: -0.035em;
   color: var(--text-main);
   text-shadow:
     0 12px 60px rgba(12, 2, 12, 0.45),
-    0  0  100px rgba(255, 195, 120, 0.1);
+    0 0 100px rgba(255, 195, 120, 0.1);
   min-height: 0.9em;
   /* Handles 1 Kings 3:16 style long references gracefully */
   overflow-wrap: anywhere;
@@ -340,7 +524,7 @@ body::after {
   display: flex;
   align-items: center;
   justify-content: center;
-  margin: 1.6rem auto;
+  margin: var(--sp-4) auto;
   width: 60%;
   max-width: 300px;
 }
@@ -349,14 +533,12 @@ body::after {
   display: block;
   width: 100%;
   height: 1px;
-  background: linear-gradient(
-    90deg,
-    transparent,
-    var(--card-border) 20%,
-    rgba(255, 244, 229, 0.2) 50%,
-    var(--card-border) 80%,
-    transparent
-  );
+  background: linear-gradient(90deg,
+      transparent,
+      var(--card-border) 20%,
+      rgba(255, 244, 229, 0.2) 50%,
+      var(--card-border) 80%,
+      transparent);
 }
 
 /* ==========================================================================
@@ -382,28 +564,36 @@ body::after {
   min-height: 4em;
 }
 
-/* Individual word spans injected by JS */
+/* Individual word spans injected by JS — fade + subtle rise */
 .verse-text .word {
   display: inline;
   opacity: 0;
+  transform: translateY(6px);
   /* Each word has an inline animation-delay for the wave-in effect */
-  animation: word-rise 0.45s cubic-bezier(0.22, 1, 0.36, 1) forwards;
+  animation: word-rise 0.5s cubic-bezier(0.22, 1, 0.36, 1) forwards;
 }
 
 @keyframes word-rise {
-  from { opacity: 0; }
-  to   { opacity: 1; }
+  from {
+    opacity: 0;
+    transform: translateY(6px);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
 }
 
 /* ==========================================================================
-   ACTION BUTTONS — magnetic, circular, minimal
+   ACTION BUTTONS — magnetic, circular, minimal with tactile micro-interactions
    ========================================================================== */
 .card-actions {
   display: flex;
   align-items: center;
   justify-content: center;
-  gap: 14px;
-  margin-top: 2.2rem;
+  gap: var(--sp-2);
+  margin-top: var(--sp-5);
   position: relative;
   z-index: 1;
 }
@@ -419,11 +609,14 @@ body::after {
   background: rgba(255, 255, 255, 0.055);
   color: var(--text-soft);
   cursor: pointer;
+  overflow: hidden;
+  /* contain ripple */
   /* JS handles magnetic offset via style.transform — transitions here provide spring-back */
   transition:
-    background 0.3s ease,
-    border-color 0.3s ease,
+    background 0.35s cubic-bezier(0.22, 1, 0.36, 1),
+    border-color 0.35s cubic-bezier(0.22, 1, 0.36, 1),
     color 0.3s ease,
+    box-shadow 0.4s cubic-bezier(0.22, 1, 0.36, 1),
     transform 0.5s cubic-bezier(0.23, 1, 0.32, 1);
   will-change: transform;
 }
@@ -437,27 +630,59 @@ body::after {
 .mag-btn svg {
   width: 17px;
   height: 17px;
-  transition: transform 0.3s ease;
+  transition: transform 0.35s cubic-bezier(0.22, 1, 0.36, 1);
   pointer-events: none;
 }
 
-.mag-btn--center svg { width: 19px; height: 19px; }
-
-.mag-btn:hover {
-  background: rgba(255, 255, 255, 0.11);
-  border-color: rgba(255, 244, 229, 0.2);
-  color: var(--text-main);
+.mag-btn--center svg {
+  width: 19px;
+  height: 19px;
 }
 
-.mag-btn:hover svg { transform: scale(1.12); }
+/* Hover: scale + brightness + layered shadow for depth */
+.mag-btn:hover {
+  background: rgba(255, 255, 255, 0.11);
+  border-color: rgba(255, 244, 229, 0.22);
+  color: var(--text-main);
+  /* 2-layer shadow: soft diffuse + tight specular rim */
+  box-shadow:
+    0 8px 32px rgba(255, 200, 120, 0.08),
+    0 2px 8px rgba(255, 220, 160, 0.12);
+}
 
+.mag-btn:hover svg {
+  transform: scale(1.14);
+}
+
+/* Press: tactile sink */
 .mag-btn:active {
   background: rgba(255, 255, 255, 0.07);
+  transform: scale(0.93) !important;
+  /* override magnetic transform */
+  transition-duration: 0.1s;
 }
 
 .mag-btn:focus-visible {
   outline: 2px solid var(--focus);
   outline-offset: 4px;
+}
+
+/* Ripple effect container (spans injected by JS on click) */
+.mag-btn .btn-ripple {
+  position: absolute;
+  border-radius: 50%;
+  background: rgba(255, 230, 180, 0.2);
+  pointer-events: none;
+  transform: scale(0);
+  animation: btn-ripple-expand 0.5s cubic-bezier(0.22, 1, 0.36, 1) forwards;
+  will-change: transform, opacity;
+}
+
+@keyframes btn-ripple-expand {
+  to {
+    transform: scale(2.5);
+    opacity: 0;
+  }
 }
 
 /* Refresh spin during load */
@@ -466,11 +691,43 @@ body::after {
 }
 
 @keyframes btn-spin {
-  to { transform: rotate(360deg); }
+  to {
+    transform: rotate(360deg);
+  }
 }
 
 /* Share feedback state */
-.mag-btn.shared svg { color: var(--focus); }
+.mag-btn.shared svg {
+  color: var(--focus);
+}
+
+/* ==========================================================================
+   STAR BURST — delight moment on theme change
+   Tiny particles radiate from button center then vanish.
+   ========================================================================== */
+.star-burst-particle {
+  position: absolute;
+  width: 3px;
+  height: 3px;
+  border-radius: 50%;
+  background: var(--sun-core);
+  pointer-events: none;
+  z-index: 10;
+  animation: star-burst 0.7s cubic-bezier(0.22, 1, 0.36, 1) forwards;
+  will-change: transform, opacity;
+}
+
+@keyframes star-burst {
+  0% {
+    opacity: 0.9;
+    transform: translate(0, 0) scale(1);
+  }
+
+  100% {
+    opacity: 0;
+    transform: translate(var(--burst-x), var(--burst-y)) scale(0.3);
+  }
+}
 
 /* ==========================================================================
    LOADING STATE
@@ -496,53 +753,104 @@ body::after {
     /* Reduce 3D effect on small screens */
   }
 
-  .verse-text { max-width: 32ch; }
+  .verse-text {
+    max-width: 32ch;
+  }
 }
 
 /* ==========================================================================
    ACCESSIBILITY
    ========================================================================== */
 @media (prefers-reduced-motion: reduce) {
-  *, *::before, *::after {
-    animation-duration:        0.01ms !important;
-    animation-iteration-count: 1      !important;
-    transition-duration:       0.01ms !important;
+
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
   }
 
   /* Kill heavy visual effects */
-  .particle      { display: none; }
-  .canvas-rays   { display: none; }
-  .grid-overlay  { display: none; }
+  .particle {
+    display: none;
+  }
 
-  /* Make card immediately visible */
-  .verse-card { opacity: 1 !important; transform: none !important; }
+  .canvas-rays {
+    display: none;
+  }
+
+  .grid-overlay {
+    display: none;
+  }
+
+  /* Make loader and card immediately visible */
+  .page-loader {
+    display: none !important;
+  }
+
+  .verse-card {
+    opacity: 1 !important;
+    transform: none !important;
+  }
+
+  /* Immediately show entrance elements */
+  .entrance-ready .ornament,
+  .entrance-ready .eyebrow,
+  .entrance-ready .verse-ref,
+  .entrance-ready .verse-rule,
+  .entrance-ready .card-actions {
+    opacity: 1 !important;
+  }
 }
 
 @media (prefers-contrast: high) {
-  .verse-card  { border: 2px solid var(--text-main); }
-  .mag-btn     { border: 2px solid var(--text-main); }
-  .eyebrow     { font-weight: 700; }
+  .verse-card {
+    border: 2px solid var(--text-main);
+  }
+
+  .mag-btn {
+    border: 2px solid var(--text-main);
+  }
+
+  .eyebrow {
+    font-weight: 700;
+  }
 }
 
 /* ==========================================================================
    PRINT
    ========================================================================== */
 @media print {
-  .canvas-rays, .particles, .grid-overlay,
-  .card-actions, .ornament, .card-spotlight { display: none; }
 
-  body, .verse-card {
+  .canvas-rays,
+  .particles,
+  .grid-overlay,
+  .card-actions,
+  .ornament,
+  .card-spotlight,
+  .page-loader {
+    display: none;
+  }
+
+  body,
+  .verse-card {
     background: white !important;
     color: black !important;
     box-shadow: none !important;
     backdrop-filter: none !important;
   }
 
-  .verse-ref__num, .verse-ref__book, .verse-text {
+  .verse-ref__num,
+  .verse-ref__book,
+  .verse-text {
     color: black !important;
     text-shadow: none !important;
     opacity: 1 !important;
   }
 
-  .verse-text .word { opacity: 1 !important; animation: none !important; }
+  .verse-text .word {
+    opacity: 1 !important;
+    animation: none !important;
+  }
 }
