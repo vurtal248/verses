@@ -102,7 +102,9 @@ body::after {
     linear-gradient(90deg, rgba(255,255,255,0.14) 1px, transparent 1px);
   background-size: 110px 110px;
   /* Fade grid at top and bottom edges */
+  -webkit-mask-image: linear-gradient(180deg, transparent 0%, #000 18%, #000 82%, transparent 100%);
   mask-image: linear-gradient(180deg, transparent 0%, #000 18%, #000 82%, transparent 100%);
+  content-visibility: auto;
 }
 
 /* ==========================================================================
@@ -129,6 +131,7 @@ body::after {
   pointer-events: none;
   z-index: 4;
   overflow: hidden;
+  content-visibility: auto;
 }
 
 .particle {
@@ -209,8 +212,8 @@ body::after {
   background: linear-gradient(
     90deg,
     transparent,
-    rgba(255, 225, 160, 0.38) 40%,
-    rgba(255, 225, 160, 0.38) 60%,
+    var(--glow-core) 40%,
+    var(--glow-core) 60%,
     transparent
   );
   border-radius: 999px;
@@ -374,7 +377,6 @@ body::after {
 
   /* Prevents excessively long verses (e.g. Psalm 119) from breaking layout */
   overflow-wrap: break-word;
-  word-break: break-word;
 
   /* Reserve height during loading */
   min-height: 4em;
