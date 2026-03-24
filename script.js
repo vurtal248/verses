@@ -72,13 +72,10 @@ function toCssVar(key) {
 /** Write all theme values to :root CSS custom properties */
 function applyTheme(theme) {
   const root = document.documentElement;
-  // Map the card border alias used in the theme objects to the CSS variable name
   Object.entries(theme).forEach(([key, value]) => {
     let cssKey = key;
     // Rename cardBorderX → cardBorder to match the CSS variable --card-border
     if (key === 'cardBorderX') cssKey = 'cardBorder';
-    if (key === 'cardBgA')     cssKey = 'cardBgA';
-    if (key === 'cardBgB')     cssKey = 'cardBgB';
     root.style.setProperty(toCssVar(cssKey), value);
   });
 }
@@ -173,13 +170,37 @@ class GodRays {
     this.time    = 0;
     this.animId  = null;
 
+    // Theme-adaptive ray tint — parsed from CSS custom properties
+    this.rayRgb     = [255, 218, 148]; // fallback: warm amber
+    this.rayFadeRgb = [255, 170, 100];
+
     this.resize  = this.resize.bind(this);
     this.tick    = this.tick.bind(this);
 
     window.addEventListener('resize', this.resize, { passive: true });
     this.resize();
     this.generateRays();
+    this.updateColors();
     this.tick();
+  }
+
+  /** Parse a CSS color string into [r, g, b] or return the given fallback. */
+  static parseRgb(str, fallback) {
+    if (!str) return fallback;
+    // Handle hex (#rrggbb)
+    const hex = str.match(/^#([\da-f]{2})([\da-f]{2})([\da-f]{2})/i);
+    if (hex) return [parseInt(hex[1], 16), parseInt(hex[2], 16), parseInt(hex[3], 16)];
+    // Handle rgb()/rgba()
+    const rgb = str.match(/(\d+)\s*,\s*(\d+)\s*,\s*(\d+)/);
+    if (rgb) return [+rgb[1], +rgb[2], +rgb[3]];
+    return fallback;
+  }
+
+  /** Read --sun-core and --glow-fade from :root to tint rays per theme. */
+  updateColors() {
+    const styles = getComputedStyle(document.documentElement);
+    this.rayRgb     = GodRays.parseRgb(styles.getPropertyValue('--sun-core').trim(),  [255, 218, 148]);
+    this.rayFadeRgb = GodRays.parseRgb(styles.getPropertyValue('--glow-fade').trim(), [255, 170, 100]);
   }
 
   resize() {
@@ -204,7 +225,7 @@ class GodRays {
   }
 
   drawRay(ray) {
-    const { ctx, sunX, sunY, canvas, time } = this;
+    const { ctx, sunX, sunY, canvas, time, rayRgb, rayFadeRgb } = this;
 
     // Pulsing alpha — makes rays feel like light filtering through clouds
     const pulse = 0.55 + 0.45 * Math.sin(time * ray.speed + ray.phase);
@@ -225,10 +246,15 @@ class GodRays {
     // Gradient fades the ray's intensity with distance from the sun
     const endX = sunX + Math.cos(a) * diag * 0.55;
     const endY = sunY + Math.sin(a) * diag * 0.55;
+    const [r, g, b]       = rayRgb;
+    const [fr, fg, fb]    = rayFadeRgb;
+    const midR = Math.round((r + fr) / 2);
+    const midG = Math.round((g + fg) / 2);
+    const midB = Math.round((b + fb) / 2);
     const grad = ctx.createLinearGradient(sunX, sunY, endX, endY);
-    grad.addColorStop(0,    `rgba(255,218,148,${alpha})`);
-    grad.addColorStop(0.35, `rgba(255,195,120,${alpha * 0.45})`);
-    grad.addColorStop(1,    `rgba(255,170,100,0)`);
+    grad.addColorStop(0,    `rgba(${r},${g},${b},${alpha})`);
+    grad.addColorStop(0.35, `rgba(${midR},${midG},${midB},${alpha * 0.45})`);
+    grad.addColorStop(1,    `rgba(${fr},${fg},${fb},0)`);
 
     ctx.fillStyle = grad;
     ctx.fill();
@@ -303,8 +329,9 @@ class MagneticButtons {
   }
 
   init() {
-    this.buttons.forEach(btn => {
-      document.addEventListener('mousemove', e => {
+    // Single shared mousemove handler — avoids N×2 global listeners
+    document.addEventListener('mousemove', e => {
+      for (const btn of this.buttons) {
         const rect = btn.getBoundingClientRect();
         const cx   = rect.left + rect.width  / 2;
         const cy   = rect.top  + rect.height / 2;
@@ -318,10 +345,12 @@ class MagneticButtons {
         } else {
           btn.style.transform = '';
         }
-      });
+      }
+    });
 
-      // Spring back on mouse leave
-      document.addEventListener('mouseleave', () => {
+    // Spring back when mouse leaves each button
+    this.buttons.forEach(btn => {
+      btn.addEventListener('mouseleave', () => {
         btn.style.transform = '';
       });
     });
@@ -507,17 +536,17 @@ class VerseApp {
   /* ------------------------------------------------------------------
      Theme system — cycle through palettes with a crossfade
   ------------------------------------------------------------------ */
-  applyTheme(theme) {
-    applyTheme(theme); // module-level helper
-  }
-
   cycleTheme() {
     this.themeIndex = (this.themeIndex + 1) % themes.length;
     const theme = themes[this.themeIndex];
 
     // Brief transition on :root so gradient crossfades smoothly
     document.documentElement.style.transition = 'background 0.9s ease';
-    this.applyTheme(theme);
+    applyTheme(theme);
+
+    // Re-tint god rays to match the new palette
+    if (this.godRays) this.godRays.updateColors();
+
     setTimeout(() => document.documentElement.style.transition = '', 950);
   }
 
@@ -601,7 +630,7 @@ class VerseApp {
      Init
   ------------------------------------------------------------------ */
   async init() {
-    this.applyTheme(themes[this.themeIndex]);
+    applyTheme(themes[this.themeIndex]);
     this.setupInteractions();
     this.revealCard();
     await this.loadVerse();
@@ -616,8 +645,9 @@ function bootstrap() {
     window.matchMedia('(prefers-reduced-motion: reduce)').matches;
 
   /* God rays */
+  let godRays = null;
   const canvas = document.getElementById('canvasRays');
-  if (canvas && !prefersReducedMotion) new GodRays(canvas);
+  if (canvas && !prefersReducedMotion) godRays = new GodRays(canvas);
 
   /* Particles */
   const pContainer = document.getElementById('particles');
@@ -634,8 +664,9 @@ function bootstrap() {
     new CardTilt(card);
   }
 
-  /* Main app */
+  /* Main app — pass god rays reference for theme-adaptive tinting */
   const app = new VerseApp();
+  app.godRays = godRays;
   app.init();
 }
 
