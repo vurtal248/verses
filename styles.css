@@ -817,16 +817,25 @@ body::after {
     opacity: 1 !important;
   }
 
-  .cursor-dot, .cursor-ring { display: none !important; }
-  body.has-custom-cursor, body.has-custom-cursor * { cursor: auto !important; }
+  .cursor-dot,
+  .cursor-ring {
+    display: none !important;
+  }
+
+  body.has-custom-cursor,
+  body.has-custom-cursor * {
+    cursor: auto !important;
+  }
 }
 
 /* ==========================================================================
    CUSTOM CURSOR
    ========================================================================== */
-.cursor-dot, .cursor-ring {
+.cursor-dot,
+.cursor-ring {
   position: fixed;
-  top: 0; left: 0;
+  top: 0;
+  left: 0;
   pointer-events: none;
   z-index: 10000;
   border-radius: 50%;
@@ -849,7 +858,7 @@ body::after {
   height: 38px;
   border: 1px solid rgba(255, 244, 229, 0.25);
   margin: -19px 0 0 -19px;
-  transition: 
+  transition:
     width 0.4s cubic-bezier(0.19, 1, 0.22, 1),
     height 0.4s cubic-bezier(0.19, 1, 0.22, 1),
     margin 0.4s cubic-bezier(0.19, 1, 0.22, 1),
@@ -878,9 +887,11 @@ body::after {
 body.has-custom-cursor {
   cursor: none;
 }
+
 body.has-custom-cursor * {
   cursor: none !important;
 }
+
 @media (prefers-contrast: high) {
   .verse-card {
     border: 2px solid var(--text-main);
