@@ -332,7 +332,7 @@ class CustomCursor {
 
     // Destroy on touch devices
     if (window.matchMedia('(hover: none)').matches) return;
-    
+
     document.body.classList.add('has-custom-cursor');
 
     window.addEventListener('mousemove', e => {
