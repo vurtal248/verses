@@ -204,8 +204,9 @@ class GodRays {
   }
 
   resize() {
-    this.canvas.width = window.innerWidth;
-    this.canvas.height = window.innerHeight;
+    const dpr = window.devicePixelRatio || 1;
+    this.canvas.width = window.innerWidth * dpr;
+    this.canvas.height = window.innerHeight * dpr;
     // Sun sits at horizontal centre, 82% down the viewport
     this.sunX = this.canvas.width / 2;
     this.sunY = this.canvas.height * 0.82;
@@ -317,59 +318,7 @@ class ParticleSystem {
   }
 }
 
-/* ==========================================================================
-   CUSTOM CURSOR — Agency-level interaction dot and ring
-   ========================================================================== */
-class CustomCursor {
-  constructor() {
-    this.dot = document.getElementById('cursorDot');
-    this.ring = document.getElementById('cursorRing');
-    if (!this.dot || !this.ring) return;
 
-    this.mouse = { x: window.innerWidth / 2, y: window.innerHeight / 2 };
-    this.pos = { dotX: this.mouse.x, dotY: this.mouse.y, ringX: this.mouse.x, ringY: this.mouse.y };
-    this.active = false;
-
-    // Destroy on touch devices
-    if (window.matchMedia('(hover: none)').matches) return;
-
-    document.body.classList.add('has-custom-cursor');
-
-    window.addEventListener('mousemove', e => {
-      this.mouse.x = e.clientX;
-      this.mouse.y = e.clientY;
-      if (!this.active) {
-        this.dot.style.opacity = 1;
-        this.ring.style.opacity = 1;
-        this.active = true;
-      }
-    }, { passive: true });
-
-    document.querySelectorAll('button, a, .verse-card').forEach(el => {
-      el.addEventListener('mouseenter', () => this.ring.classList.add('is-hover'));
-      el.addEventListener('mouseleave', () => this.ring.classList.remove('is-hover'));
-    });
-
-    document.addEventListener('mousedown', () => this.ring.classList.add('is-active'));
-    document.addEventListener('mouseup', () => this.ring.classList.remove('is-active'));
-
-    this.tick = this.tick.bind(this);
-    requestAnimationFrame(this.tick);
-  }
-
-  tick() {
-    // Lerp algorithm for smooth trailing
-    this.pos.dotX += (this.mouse.x - this.pos.dotX) * 0.25;
-    this.pos.dotY += (this.mouse.y - this.pos.dotY) * 0.25;
-    this.pos.ringX += (this.mouse.x - this.pos.ringX) * 0.12;
-    this.pos.ringY += (this.mouse.y - this.pos.ringY) * 0.12;
-
-    this.dot.style.transform = `translate3d(${this.pos.dotX}px, ${this.pos.dotY}px, 0)`;
-    this.ring.style.transform = `translate3d(${this.pos.ringX}px, ${this.pos.ringY}px, 0)`;
-
-    requestAnimationFrame(this.tick);
-  }
-}
 
 /* ==========================================================================
    MAGNETIC BUTTONS — buttons drift toward the cursor when nearby
@@ -565,7 +514,12 @@ class VerseApp {
     this.hasCompletedEntrance = false;
 
     // Persist up to 15 verses for offline fallback
-    this.cache = JSON.parse(localStorage.getItem('vrs_cache') || '[]');
+    this.cache = [];
+    try {
+      this.cache = JSON.parse(localStorage.getItem('vrs_cache') || '[]');
+    } catch (e) {
+      // Local storage disabled or unavailable
+    }
 
     this.fallback = {
       reference: 'Matthew 11:28',
@@ -587,8 +541,11 @@ class VerseApp {
      Fetch a random verse from the public Bible API
   ------------------------------------------------------------------ */
   async fetchVerse() {
+    const controller = new AbortController();
+    const timeout = setTimeout(() => controller.abort(), 5000);
     try {
-      const res = await fetch('https://bible-api.com/data/web/random');
+      const res = await fetch('https://bible-api.com/data/web/random', { signal: controller.signal });
+      clearTimeout(timeout);
       if (!res.ok) throw new Error(`HTTP ${res.status}`);
       const data = await res.json();
       const rv = data.random_verse;
@@ -625,7 +582,9 @@ class VerseApp {
         // Keep cache fresh (FIFO, max 15)
         if (this.cache.length >= 15) this.cache.shift();
         this.cache.push(verse);
-        localStorage.setItem('vrs_cache', JSON.stringify(this.cache));
+        try {
+          localStorage.setItem('vrs_cache', JSON.stringify(this.cache));
+        } catch (e) {}
       }
     }
 
@@ -808,19 +767,14 @@ function bootstrap() {
   if (pContainer) new ParticleSystem(pContainer);
 
   /* Magnetic pull on buttons */
-  if (!window.matchMedia('(hover: none)').matches) {
-    new MagneticButtons('[data-magnetic]');
-  }
+  new MagneticButtons('[data-magnetic]');
 
   /* Button ripple feedback */
   new ButtonRipple('[data-magnetic]');
 
-  /* Custom Cursor */
-  new CustomCursor();
-
-  /* 3D card tilt (skip on touch & reduced-motion) */
+  /* 3D card tilt */
   const card = document.getElementById('verseCard');
-  if (card && !window.matchMedia('(hover: none)').matches) {
+  if (card) {
     new CardTilt(card);
   }
 
