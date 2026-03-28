@@ -798,17 +798,14 @@ class VerseApp {
    BOOTSTRAP
    ========================================================================== */
 function bootstrap() {
-  const prefersReducedMotion =
-    window.matchMedia('(prefers-reduced-motion: reduce)').matches;
-
   /* God rays */
   let godRays = null;
   const canvas = document.getElementById('canvasRays');
-  if (canvas && !prefersReducedMotion) godRays = new GodRays(canvas);
+  if (canvas) godRays = new GodRays(canvas);
 
   /* Particles */
   const pContainer = document.getElementById('particles');
-  if (pContainer && !prefersReducedMotion) new ParticleSystem(pContainer);
+  if (pContainer) new ParticleSystem(pContainer);
 
   /* Magnetic pull on buttons */
   if (!window.matchMedia('(hover: none)').matches) {
@@ -819,11 +816,11 @@ function bootstrap() {
   new ButtonRipple('[data-magnetic]');
 
   /* Custom Cursor */
-  if (!prefersReducedMotion) new CustomCursor();
+  new CustomCursor();
 
   /* 3D card tilt (skip on touch & reduced-motion) */
   const card = document.getElementById('verseCard');
-  if (card && !window.matchMedia('(hover: none)').matches && !prefersReducedMotion) {
+  if (card && !window.matchMedia('(hover: none)').matches) {
     new CardTilt(card);
   }
 
