@@ -505,6 +505,7 @@ class VerseApp {
     this.refreshBtn = document.getElementById('refreshBtn');
     this.themeBtn = document.getElementById('themeBtn');
     this.shareBtn = document.getElementById('shareBtn');
+    this.contextBtn = document.getElementById('contextBtn');
 
     this.bookScramble = new TextScramble(this.bookEl);
     this.numScramble = new TextScramble(this.numEl);
@@ -512,6 +513,8 @@ class VerseApp {
     this.themeIndex = 1; // start on Sunset Dusk
     this.isLoading = false;
     this.hasCompletedEntrance = false;
+    this.isExpanded = false;
+    this.currentVerseData = null;
 
     // Persist up to 15 verses for offline fallback
     this.cache = [];
@@ -588,7 +591,19 @@ class VerseApp {
       }
     }
 
+    this.currentVerseData = verse;
     const { book, num } = this.parseReference(verse.reference);
+
+    // Reset expanded state
+    this.isExpanded = false;
+    if (this.contextBtn) {
+      this.contextBtn.classList.remove('is-expanded');
+      this.contextBtn.setAttribute('aria-label', 'Show surrounding context');
+      this.contextBtn.innerHTML = `
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+          <path d="M8 3H5a2 2 0 0 0-2 2v3m18 0V5a2 2 0 0 0-2-2h-3m0 18h3a2 2 0 0 0 2-2v-3M3 16v3a2 2 0 0 0 2 2h3" />
+        </svg>`;
+    }
 
     // Scramble book name (uppercase) and chapter:verse simultaneously
     await Promise.all([
@@ -601,6 +616,87 @@ class VerseApp {
 
     this.card.classList.remove('is-loading');
     this.refreshBtn.classList.remove('is-spinning');
+    this.isLoading = false;
+  }
+
+  /* ------------------------------------------------------------------
+     Expand Context — fetches the chapter and gets surrounding verses
+  ------------------------------------------------------------------ */
+  async toggleContext() {
+    if (this.isLoading) return;
+    if (!this.currentVerseData) return;
+
+    if (this.isExpanded) {
+      // Restore original verse
+      this.isLoading = true;
+      this.card.classList.add('is-loading');
+      
+      const { num } = this.parseReference(this.currentVerseData.reference);
+      await this.numScramble.setText(num);
+      this.animateWords(this.currentVerseData.content);
+      
+      this.isExpanded = false;
+      this.contextBtn.classList.remove('is-expanded');
+      this.contextBtn.setAttribute('aria-label', 'Show surrounding context');
+      this.contextBtn.innerHTML = `
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+          <path d="M8 3H5a2 2 0 0 0-2 2v3m18 0V5a2 2 0 0 0-2-2h-3m0 18h3a2 2 0 0 0 2-2v-3M3 16v3a2 2 0 0 0 2 2h3" />
+        </svg>`;
+        
+      this.card.classList.remove('is-loading');
+      this.isLoading = false;
+      return;
+    }
+
+    // Expand
+    const { book, num } = this.parseReference(this.currentVerseData.reference);
+    const parts = num.split(':');
+    if (parts.length !== 2) return;
+    
+    const chapterStr = parts[0];
+    const targetVerseNum = parseInt(parts[1], 10);
+
+    this.isLoading = true;
+    this.contextBtn.classList.add('is-spinning');
+    this.card.classList.add('is-loading');
+
+    try {
+      const fetchRef = `${book} ${chapterStr}`;
+      const res = await fetch(`https://bible-api.com/${encodeURIComponent(fetchRef)}?translation=web`);
+      if (!res.ok) throw new Error(`HTTP ${res.status}`);
+      const data = await res.json();
+      
+      if (data.verses) {
+        let vIndex = data.verses.findIndex(v => v.verse === targetVerseNum);
+        if (vIndex !== -1) {
+          const start = Math.max(0, vIndex - 1);
+          const end = Math.min(data.verses.length - 1, vIndex + 1);
+          const block = data.verses.slice(start, end + 1);
+          
+          const fullText = block.map(v => v.text.trim()).join(' ');
+          const firstVerse = block[0].verse;
+          const lastVerse = block[block.length - 1].verse;
+          
+          const newNum = firstVerse === lastVerse ? `${chapterStr}:${firstVerse}` : `${chapterStr}:${firstVerse}-${lastVerse}`;
+          
+          await this.numScramble.setText(newNum);
+          this.animateWords(fullText);
+          
+          this.isExpanded = true;
+          this.contextBtn.classList.add('is-expanded');
+          this.contextBtn.setAttribute('aria-label', 'Collapse context');
+          this.contextBtn.innerHTML = `
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+              <path d="M8 3v3a2 2 0 0 1-2 2H3m18 0h-3a2 2 0 0 1-2-2V3m0 18v-3a2 2 0 0 1 2-2h3M3 16h3a2 2 0 0 1 2 2v3" />
+            </svg>`;
+        }
+      }
+    } catch (e) {
+      console.error("Failed to load context:", e);
+    }
+
+    this.card.classList.remove('is-loading');
+    this.contextBtn.classList.remove('is-spinning');
     this.isLoading = false;
   }
 
@@ -687,6 +783,11 @@ class VerseApp {
       this.cycleTheme();
       StarBurst.emit(this.themeBtn, 10);
     });
+
+    // Expand context
+    if (this.contextBtn) {
+      this.contextBtn.addEventListener('click', () => this.toggleContext());
+    }
 
     // Share
     this.shareBtn.addEventListener('click', () => this.shareVerse());
