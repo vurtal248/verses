@@ -72,6 +72,8 @@
 html {
   min-height: 100%;
   scroll-behavior: smooth;
+  scrollbar-width: thin;
+  scrollbar-color: rgba(255, 244, 229, 0.15) transparent;
 }
 
 body {
@@ -301,11 +303,7 @@ body::after {
 }
 
 /* Initially hide elements that will be animated in by JS */
-.entrance-ready .ornament,
-.entrance-ready .eyebrow,
-.entrance-ready .verse-ref,
-.entrance-ready .verse-rule,
-.entrance-ready .card-actions {
+.entrance-ready :is(.ornament, .eyebrow, .verse-ref, .verse-rule, .card-actions) {
   opacity: 0;
   will-change: transform, opacity;
 }
@@ -746,9 +744,7 @@ body::after {
 /* ==========================================================================
    LOADING STATE
    ========================================================================== */
-.verse-card.is-loading .verse-ref__book,
-.verse-card.is-loading .verse-ref__num,
-.verse-card.is-loading .verse-text {
+.verse-card.is-loading :is(.verse-ref__book, .verse-ref__num, .verse-text) {
   opacity: 0.25;
   pointer-events: none;
   user-select: none;
@@ -774,69 +770,7 @@ body::after {
 
 
 
-/* ==========================================================================
-   CUSTOM CURSOR
-   ========================================================================== */
-.cursor-dot,
-.cursor-ring {
-  position: fixed;
-  top: 0;
-  left: 0;
-  pointer-events: none;
-  z-index: 10000;
-  border-radius: 50%;
-  transform: translate3d(-100px, -100px, 0);
-  opacity: 0;
-  transition: opacity 0.5s cubic-bezier(0.19, 1, 0.22, 1);
-  will-change: transform, opacity;
-}
 
-.cursor-dot {
-  width: 6px;
-  height: 6px;
-  background: var(--sun-core);
-  margin: -3px 0 0 -3px;
-  box-shadow: 0 0 10px var(--sun-core);
-}
-
-.cursor-ring {
-  width: 38px;
-  height: 38px;
-  border: 1px solid rgba(255, 244, 229, 0.25);
-  margin: -19px 0 0 -19px;
-  transition:
-    width 0.4s cubic-bezier(0.19, 1, 0.22, 1),
-    height 0.4s cubic-bezier(0.19, 1, 0.22, 1),
-    margin 0.4s cubic-bezier(0.19, 1, 0.22, 1),
-    border-color 0.4s ease,
-    background 0.4s ease,
-    opacity 0.5s cubic-bezier(0.19, 1, 0.22, 1);
-}
-
-.cursor-ring.is-hover {
-  width: 60px;
-  height: 60px;
-  margin: -30px 0 0 -30px;
-  border-color: rgba(255, 244, 229, 0.08);
-  background: rgba(255, 244, 229, 0.04);
-  backdrop-filter: blur(2px);
-  -webkit-backdrop-filter: blur(2px);
-}
-
-.cursor-ring.is-active {
-  width: 28px;
-  height: 28px;
-  margin: -14px 0 0 -14px;
-}
-
-/* Hide default cursor only if our custom cursor is active */
-body.has-custom-cursor {
-  cursor: none;
-}
-
-body.has-custom-cursor * {
-  cursor: none !important;
-}
 
 @media (prefers-contrast: high) {
   .verse-card {
