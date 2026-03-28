@@ -772,61 +772,7 @@ body::after {
   }
 }
 
-/* ==========================================================================
-   ACCESSIBILITY
-   ========================================================================== */
-@media (prefers-reduced-motion: reduce) {
 
-  *,
-  *::before,
-  *::after {
-    animation-duration: 0.01ms !important;
-    animation-iteration-count: 1 !important;
-    transition-duration: 0.01ms !important;
-  }
-
-  /* Kill heavy visual effects */
-  .particle {
-    display: none;
-  }
-
-  .canvas-rays {
-    display: none;
-  }
-
-  .grid-overlay {
-    display: none;
-  }
-
-  /* Make loader and card immediately visible */
-  .page-loader {
-    display: none !important;
-  }
-
-  .verse-card {
-    opacity: 1 !important;
-    transform: none !important;
-  }
-
-  /* Immediately show entrance elements */
-  .entrance-ready .ornament,
-  .entrance-ready .eyebrow,
-  .entrance-ready .verse-ref,
-  .entrance-ready .verse-rule,
-  .entrance-ready .card-actions {
-    opacity: 1 !important;
-  }
-
-  .cursor-dot,
-  .cursor-ring {
-    display: none !important;
-  }
-
-  body.has-custom-cursor,
-  body.has-custom-cursor * {
-    cursor: auto !important;
-  }
-}
 
 /* ==========================================================================
    CUSTOM CURSOR
