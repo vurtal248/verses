@@ -287,18 +287,20 @@ body::after {
   }
 }
 
-/* Top rim light shimmer — slow sweep for ambient life */
+/* Top rim light shimmer — slow sweep for ambient life.
+   Uses scaleX instead of width: only transform is composited,
+   avoiding layout recalculation every frame. */
 @keyframes rim-shimmer {
 
   0%,
   100% {
     opacity: 0.7;
-    width: 50%;
+    transform: translateX(-50%) scaleX(1);
   }
 
   50% {
     opacity: 1;
-    width: 62%;
+    transform: translateX(-50%) scaleX(1.22);
   }
 }
 
@@ -357,8 +359,8 @@ body::after {
 .verse-card {
   position: relative;
   width: min(100%, 780px);
-  /* Slightly more generous vertical padding for breathing room (base-8 aligned) */
-  padding: clamp(var(--sp-5), 6.5vw, 5.2rem) clamp(var(--sp-4), 5.5vw, 4.5rem);
+  /* Vertical padding: min = --sp-5 (40px), max = --sp-8 (64px), both on spacing scale; no magic numbers */
+  padding: clamp(var(--sp-5), 6.5vw, var(--sp-8)) clamp(var(--sp-4), 5.5vw, 4.5rem);
 
   border: 1px solid var(--card-border);
   border-radius: 38px;
@@ -391,6 +393,8 @@ body::after {
   position: absolute;
   top: -1px;
   left: 50%;
+  /* Initial translateX(-50%) is baked into the keyframe so
+     the animation never fights an inline transform value. */
   transform: translateX(-50%);
   width: 55%;
   height: 1px;
@@ -403,7 +407,7 @@ body::after {
   pointer-events: none;
   /* Shimmer animation for ambient life */
   animation: rim-shimmer 6s ease-in-out infinite;
-  will-change: opacity, width;
+  will-change: opacity, transform;
 }
 
 /* Inner border highlight — second layer of depth */
@@ -553,6 +557,8 @@ body::after {
   color: var(--text-soft);
   max-width: 36ch;
   margin: 0 auto;
+  /* balance is the safer baseline; pretty is an enhancement where supported */
+  text-wrap: balance;
   text-wrap: pretty;
   position: relative;
   z-index: 1;
@@ -760,7 +766,7 @@ body::after {
 
   .verse-card {
     border-radius: 28px;
-    /* Reduce 3D effect on small screens */
+    /* 3D tilt is mouse-only (JS); no CSS change needed for touch screens */
   }
 
   .verse-text {
@@ -768,9 +774,31 @@ body::after {
   }
 }
 
+/* ==========================================================================
+   REDUCED MOTION — Respect user's system preference.
+   Disable all decorative animations; keep only functional state transitions.
+   ========================================================================== */
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
 
+  /* Immediately show elements that would otherwise animate in */
+  .entrance-ready :is(.ornament, .eyebrow, .verse-ref, .verse-rule, .card-actions) {
+    opacity: 1;
+  }
 
-
+  /* Ensure word-wave words are visible without animation */
+  .verse-text .word {
+    opacity: 1 !important;
+    transform: none !important;
+  }
+}
 
 @media (prefers-contrast: high) {
   .verse-card {
@@ -819,6 +847,7 @@ body::after {
 
   .verse-text .word {
     opacity: 1 !important;
+    transform: none !important;
     animation: none !important;
   }
 }
