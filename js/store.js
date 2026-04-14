@@ -83,10 +83,10 @@ export const themeOverride = {
     } catch { return null; }
   },
   set(index) {
-    try { sessionStorage.setItem(KEYS.THEME_OVERRIDE, String(index)); } catch {}
+    try { sessionStorage.setItem(KEYS.THEME_OVERRIDE, String(index)); } catch { }
   },
   clear() {
-    try { sessionStorage.removeItem(KEYS.THEME_OVERRIDE); } catch {}
+    try { sessionStorage.removeItem(KEYS.THEME_OVERRIDE); } catch { }
   },
 };
 
