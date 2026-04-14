@@ -630,11 +630,11 @@ class VerseApp {
       // Restore original verse
       this.isLoading = true;
       this.card.classList.add('is-loading');
-      
+
       const { num } = this.parseReference(this.currentVerseData.reference);
       await this.numScramble.setText(num);
       this.animateWords(this.currentVerseData.content);
-      
+
       this.isExpanded = false;
       this.contextBtn.classList.remove('is-expanded');
       this.contextBtn.setAttribute('aria-label', 'Show surrounding context');
@@ -642,7 +642,7 @@ class VerseApp {
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
           <path d="M8 3H5a2 2 0 0 0-2 2v3m18 0V5a2 2 0 0 0-2-2h-3m0 18h3a2 2 0 0 0 2-2v-3M3 16v3a2 2 0 0 0 2 2h3" />
         </svg>`;
-        
+
       this.card.classList.remove('is-loading');
       this.isLoading = false;
       return;
@@ -652,7 +652,7 @@ class VerseApp {
     const { book, num } = this.parseReference(this.currentVerseData.reference);
     const parts = num.split(':');
     if (parts.length !== 2) return;
-    
+
     const chapterStr = parts[0];
     const targetVerseNum = parseInt(parts[1], 10);
 
@@ -665,23 +665,23 @@ class VerseApp {
       const res = await fetch(`https://bible-api.com/${encodeURIComponent(fetchRef)}?translation=web`);
       if (!res.ok) throw new Error(`HTTP ${res.status}`);
       const data = await res.json();
-      
+
       if (data.verses) {
         let vIndex = data.verses.findIndex(v => v.verse === targetVerseNum);
         if (vIndex !== -1) {
           const start = Math.max(0, vIndex - 1);
           const end = Math.min(data.verses.length - 1, vIndex + 1);
           const block = data.verses.slice(start, end + 1);
-          
+
           const fullText = block.map(v => v.text.trim()).join(' ');
           const firstVerse = block[0].verse;
           const lastVerse = block[block.length - 1].verse;
-          
+
           const newNum = firstVerse === lastVerse ? `${chapterStr}:${firstVerse}` : `${chapterStr}:${firstVerse}-${lastVerse}`;
-          
+
           await this.numScramble.setText(newNum);
           this.animateWords(fullText);
-          
+
           this.isExpanded = true;
           this.contextBtn.classList.add('is-expanded');
           this.contextBtn.setAttribute('aria-label', 'Collapse context');
