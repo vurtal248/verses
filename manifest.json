@@ -29,5 +29,8 @@
       "form_factor": "narrow"
     }
   ],
-  "categories": ["lifestyle", "religion"]
+  "categories": [
+    "lifestyle",
+    "religion"
+  ]
 }
