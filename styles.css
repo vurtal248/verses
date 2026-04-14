@@ -127,10 +127,13 @@
     /* 64px */
 
     /* --- Duration tokens --- */
-    --duration-entrance: 1.1s;
-    --duration-fast: 0.2s;
-    --duration-mid: 0.45s;
-    --duration-slow: 0.75s;
+    --duration-entrance: 0.8s;
+    --duration-fast: 0.15s;
+    --duration-mid: 0.25s;
+    --duration-slow: 0.4s;
+    --ease-out: cubic-bezier(0.23, 1, 0.32, 1);
+    --ease-in-out: cubic-bezier(0.77, 0, 0.175, 1);
+    --ease-drawer: cubic-bezier(0.32, 0.72, 0, 1);
     --ease-out-expo: cubic-bezier(0.16, 1, 0.3, 1);
     --ease-spring: cubic-bezier(0.22, 1, 0.36, 1);
   }
@@ -304,7 +307,7 @@
   @keyframes fade-up {
     from {
       opacity: 0;
-      transform: translateY(20px);
+      transform: translateY(100%);
     }
 
     to {
@@ -316,7 +319,7 @@
   @keyframes fade-up-subtle {
     from {
       opacity: 0;
-      transform: translateY(10px);
+      transform: translateY(50%);
     }
 
     to {
@@ -338,7 +341,7 @@
   @keyframes scale-in {
     from {
       opacity: 0;
-      transform: scale(0.7);
+      transform: scale(0.95);
     }
 
     to {
@@ -445,9 +448,10 @@
     border-radius: var(--radius-chip);
     cursor: pointer;
     transition:
-      background var(--duration-mid) var(--ease-spring),
-      color var(--duration-mid) ease,
-      border-color var(--duration-mid) ease;
+      background var(--duration-fast) var(--ease-out),
+      color var(--duration-fast) ease,
+      border-color var(--duration-fast) ease,
+      transform var(--duration-fast) var(--ease-out);
   }
 
   .plan-chip svg {
@@ -461,6 +465,10 @@
     background: rgba(255, 255, 255, 0.12);
     color: var(--color-on-surface);
     border-color: rgba(255, 244, 229, 0.24);
+  }
+
+  .plan-chip:active {
+    transform: scale(0.97);
   }
 
   .plan-chip.is-active {
@@ -489,10 +497,11 @@
     padding: var(--sp-1);
     opacity: 0;
     transform: translateY(-6px) scale(0.97);
+    transform-origin: top left;
     pointer-events: none;
     transition:
-      opacity var(--duration-mid) var(--ease-spring),
-      transform var(--duration-mid) var(--ease-spring);
+      opacity var(--duration-fast) var(--ease-out),
+      transform var(--duration-fast) var(--ease-out);
   }
 
   .plan-menu.is-open {
@@ -795,6 +804,7 @@
     z-index: 1;
     overflow-wrap: break-word;
     min-height: 4em;
+    transition: opacity var(--duration-fast) var(--ease-out), filter var(--duration-fast) var(--ease-out);
   }
 
   .verse-text .word-wrapper {
@@ -819,11 +829,13 @@
     from {
       opacity: 0;
       transform: translateY(110%) rotate(4deg);
+      filter: blur(4px);
     }
 
     to {
       opacity: 1;
       transform: translateY(0) rotate(0deg);
+      filter: blur(0px);
     }
   }
 
@@ -888,11 +900,11 @@
     cursor: pointer;
     overflow: hidden;
     transition:
-      background var(--duration-mid) var(--ease-spring),
-      border-color var(--duration-mid) var(--ease-spring),
-      color 0.3s ease,
-      box-shadow 0.4s var(--ease-spring),
-      transform var(--duration-slow) cubic-bezier(0.23, 1, 0.32, 1);
+      background var(--duration-fast) var(--ease-out),
+      border-color var(--duration-fast) var(--ease-out),
+      color 0.15s ease,
+      box-shadow 0.2s var(--ease-out),
+      transform 0.15s var(--ease-out);
     will-change: transform;
   }
 
@@ -947,7 +959,7 @@
 
   .mag-btn:active {
     background: rgba(255, 255, 255, 0.07);
-    transform: scale(0.93) !important;
+    transform: scale(0.97) !important;
     transition-duration: 0.1s;
   }
 
@@ -1053,6 +1065,7 @@
   ------------------------------------------------------------------------- */
   .verse-card.is-loading :is(.verse-ref__book, .verse-ref__num, .verse-text) {
     opacity: 0.25;
+    filter: blur(4px);
     pointer-events: none;
     user-select: none;
   }
@@ -1078,10 +1091,10 @@
     -webkit-backdrop-filter: blur(10px);
     cursor: pointer;
     transition:
-      background var(--duration-mid) var(--ease-spring),
-      color var(--duration-mid),
-      border-color var(--duration-mid),
-      transform var(--duration-mid) var(--ease-spring);
+      background var(--duration-fast) var(--ease-out),
+      color var(--duration-fast) ease,
+      border-color var(--duration-fast) ease,
+      transform var(--duration-fast) var(--ease-out);
   }
 
   .fav-trigger svg {
@@ -1094,7 +1107,10 @@
     background: rgba(255, 255, 255, 0.11);
     color: var(--color-on-surface);
     border-color: rgba(255, 244, 229, 0.22);
-    transform: translateY(-2px);
+  }
+
+  .fav-trigger:active {
+    transform: scale(0.97);
   }
 
   .fav-trigger:focus-visible {
@@ -1135,7 +1151,7 @@
     display: flex;
     flex-direction: column;
     transform: translateY(100%);
-    transition: transform var(--duration-slow) var(--ease-out-expo);
+    transition: transform var(--duration-slow) var(--ease-drawer);
     will-change: transform;
     overflow: hidden;
   }
@@ -1223,7 +1239,7 @@
     padding: var(--sp-2) var(--sp-2);
     border-radius: 14px;
     border: 1px solid transparent;
-    transition: background var(--duration-fast), border-color var(--duration-fast);
+    transition: background var(--duration-fast), border-color var(--duration-fast), transform var(--duration-fast) var(--ease-out);
     position: relative;
   }
 
@@ -1234,6 +1250,10 @@
   .fav-item:hover {
     background: rgba(255, 255, 255, 0.05);
     border-color: var(--card-border);
+  }
+
+  .fav-item:active {
+    transform: scale(0.98);
   }
 
   /* Colored accent strip: saves the theme's sun-core colour */
