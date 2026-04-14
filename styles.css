@@ -613,7 +613,9 @@
 
     text-align: center;
     isolation: isolate;
-    contain: layout style paint;
+    /* 'paint' removed — it clips the ghost history arrow buttons at card edges.
+       layout + style still provide meaningful containment benefits. */
+    contain: layout style;
 
     /* Container query context — card adapts to its own width */
     container-type: inline-size;
@@ -863,11 +865,14 @@
     display: flex;
     align-items: center;
     justify-content: center;
+    /* Negative horizontal margin lets ghost arrow buttons breathe at card edges */
     gap: var(--sp-1);
     margin-top: var(--sp-5);
+    /* Allow ghost arrows to sit visually outside the core button cluster */
+    margin-inline: calc(-1 * var(--sp-1));
     position: relative;
     z-index: 1;
-    flex-wrap: wrap;
+    flex-wrap: nowrap;
   }
 
   .mag-btn {
