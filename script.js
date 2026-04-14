@@ -318,8 +318,6 @@ class ParticleSystem {
   }
 }
 
-
-
 /* ==========================================================================
    MAGNETIC BUTTONS — buttons drift toward the cursor when nearby
    ========================================================================== */
@@ -587,7 +585,9 @@ class VerseApp {
         this.cache.push(verse);
         try {
           localStorage.setItem('vrs_cache', JSON.stringify(this.cache));
-        } catch (e) {}
+        } catch {
+          // localStorage may be unavailable (e.g. private browsing, storage quota exceeded)
+        }
       }
     }
 
@@ -691,8 +691,8 @@ class VerseApp {
             </svg>`;
         }
       }
-    } catch (e) {
-      console.error("Failed to load context:", e);
+    } catch {
+      // Context fetch failed (network or API error) — leave current verse displayed
     }
 
     this.card.classList.remove('is-loading');
