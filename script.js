@@ -479,7 +479,7 @@ class CardTilt {
 
   onLeave() {
     // Restore transition for smooth spring-back to flat
-    this.card.style.transition = 'transform 0.75s cubic-bezier(0.23, 1, 0.32, 1)';
+    this.card.style.transition = 'transform var(--duration-mid) var(--ease-out)';
     this.card.style.transform = '';
 
     setTimeout(() => {
@@ -487,7 +487,7 @@ class CardTilt {
       if (!this.card.classList.contains('is-loading')) {
         this.card.style.transition = '';
       }
-    }, 750);
+    }, 250);
   }
 }
 
