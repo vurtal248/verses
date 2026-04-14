@@ -1128,12 +1128,14 @@
     /* Semi-opaque scrim */
     background: rgba(4, 2, 8, 0);
     pointer-events: none;
-    transition: background var(--duration-slow) ease;
+    visibility: hidden;
+    transition: background var(--duration-slow) ease, visibility var(--duration-slow);
   }
 
   .favorites-drawer.is-open {
     pointer-events: auto;
     background: rgba(4, 2, 8, 0.6);
+    visibility: visible;
   }
 
   .favorites-drawer__panel {
@@ -1406,10 +1408,6 @@
     .verse-text .word {
       opacity: 1 !important;
       transform: none !important;
-    }
-
-    .favorites-drawer__panel {
-      transform: translateY(0) !important;
     }
   }
 
