@@ -5,8 +5,7 @@
 
 import { GodRays } from './effects/god-rays.js';
 import { ParticleSystem } from './effects/particles.js';
-import { MagneticButtons, ButtonRipple } from './effects/magnetic.js';
-import { CardTilt } from './effects/card-tilt.js';
+import { ButtonRipple } from './effects/magnetic.js';
 import { VerseApp } from './verse-app.js';
 
 function bootstrap() {
@@ -19,15 +18,8 @@ function bootstrap() {
   const pContainer = document.getElementById('particles');
   if (pContainer) new ParticleSystem(pContainer);
 
-  /* Magnetic pull on buttons */
-  new MagneticButtons('[data-magnetic]');
-
   /* Button ripple feedback */
   new ButtonRipple('[data-magnetic]');
-
-  /* 3D card tilt */
-  const card = document.getElementById('verseCard');
-  if (card) new CardTilt(card);
 
   /* Main app */
   const app = new VerseApp();
