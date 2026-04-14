@@ -1,9 +1,30 @@
 [
-  { "reference": "Psalm 1:1-2", "content": "Blessed is the man who doesn't walk in the counsel of the wicked, nor stand on the path of sinners, nor sit in the seat of scoffers; but his delight is in Yahweh's law. On his law he meditates day and night." },
-  { "reference": "Psalm 23:1-3", "content": "Yahweh is my shepherd; I shall lack nothing. He makes me lie down in green pastures. He leads me beside still waters. He restores my soul." },
-  { "reference": "Psalm 27:1", "content": "Yahweh is my light and my salvation. Whom shall I fear? Yahweh is the strength of my life. Of whom shall I be afraid?" },
-  { "reference": "Psalm 46:10", "content": "Be still, and know that I am God. I will be exalted among the nations. I will be exalted in the earth." },
-  { "reference": "Psalm 91:1-2", "content": "He who dwells in the secret place of the Most High will rest in the shadow of the Almighty. I will say of Yahweh, He is my refuge and my fortress; my God, in whom I trust." },
-  { "reference": "Psalm 121:1-2", "content": "I will lift up my eyes to the hills. Where does my help come from? My help comes from Yahweh, who made heaven and earth." },
-  { "reference": "Psalm 139:14", "content": "I will give thanks to you, for I am fearfully and wonderfully made. Your works are wonderful. My soul knows that very well." }
+  {
+    "reference": "Psalm 1:1-2",
+    "content": "Blessed is the man who doesn't walk in the counsel of the wicked, nor stand on the path of sinners, nor sit in the seat of scoffers; but his delight is in Yahweh's law. On his law he meditates day and night."
+  },
+  {
+    "reference": "Psalm 23:1-3",
+    "content": "Yahweh is my shepherd; I shall lack nothing. He makes me lie down in green pastures. He leads me beside still waters. He restores my soul."
+  },
+  {
+    "reference": "Psalm 27:1",
+    "content": "Yahweh is my light and my salvation. Whom shall I fear? Yahweh is the strength of my life. Of whom shall I be afraid?"
+  },
+  {
+    "reference": "Psalm 46:10",
+    "content": "Be still, and know that I am God. I will be exalted among the nations. I will be exalted in the earth."
+  },
+  {
+    "reference": "Psalm 91:1-2",
+    "content": "He who dwells in the secret place of the Most High will rest in the shadow of the Almighty. I will say of Yahweh, He is my refuge and my fortress; my God, in whom I trust."
+  },
+  {
+    "reference": "Psalm 121:1-2",
+    "content": "I will lift up my eyes to the hills. Where does my help come from? My help comes from Yahweh, who made heaven and earth."
+  },
+  {
+    "reference": "Psalm 139:14",
+    "content": "I will give thanks to you, for I am fearfully and wonderfully made. Your works are wonderful. My soul knows that very well."
+  }
 ]
