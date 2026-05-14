@@ -804,7 +804,56 @@
     z-index: 1;
     overflow-wrap: break-word;
     min-height: 4em;
+    /* Scroll when expanded context overflows — cap at ~40% of viewport height
+       so action buttons are always reachable. */
+    max-height: clamp(12rem, 40vh, 22rem);
+    overflow-y: auto;
+    /* Fade the bottom edge when content overflows — the mask dissolves when
+       the user scrolls to the end (handled via .verse-text--at-end class). */
+    -webkit-mask-image: linear-gradient(
+      to bottom,
+      #000 0%,
+      #000 75%,
+      transparent 100%
+    );
+    mask-image: linear-gradient(
+      to bottom,
+      #000 0%,
+      #000 75%,
+      transparent 100%
+    );
+    /* Themed scrollbar — thin amber rail */
+    scrollbar-width: thin;
+    scrollbar-color: rgba(255, 208, 138, 0.28) transparent;
     transition: opacity var(--duration-fast) var(--ease-out), filter var(--duration-fast) var(--ease-out);
+    /* Padding-right so text doesn't clip under the scrollbar thumb */
+    padding-right: 0.5rem;
+  }
+
+  /* When content doesn't overflow, or user has scrolled to the bottom,
+     remove the fade mask so the last line is fully visible. */
+  .verse-text.is-scrolled-end,
+  .verse-text:not([data-overflows]) {
+    -webkit-mask-image: none;
+    mask-image: none;
+  }
+
+  /* WebKit scrollbar — matches glass card aesthetic */
+  .verse-text::-webkit-scrollbar {
+    width: 3px;
+  }
+
+  .verse-text::-webkit-scrollbar-track {
+    background: transparent;
+  }
+
+  .verse-text::-webkit-scrollbar-thumb {
+    background: rgba(255, 208, 138, 0.32);
+    border-radius: 99px;
+  }
+
+  .verse-text::-webkit-scrollbar-thumb:hover {
+    background: rgba(255, 208, 138, 0.55);
   }
 
   .verse-text .word-wrapper {
