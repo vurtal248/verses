@@ -715,6 +715,41 @@ class VerseApp {
     }).join('');
 
     this.contentEl.innerHTML = html;
+
+    // Re-evaluate overflow after words render (rAF so layout is committed)
+    requestAnimationFrame(() => this._syncScrollState());
+  }
+
+  /* ------------------------------------------------------------------
+     Scroll-overflow helpers — drives the data-overflows attribute and
+     is-scrolled-end class that control the CSS fade mask on verse text.
+  ------------------------------------------------------------------ */
+  _syncScrollState() {
+    const el = this.contentEl;
+    const overflows = el.scrollHeight > el.clientHeight + 2; // 2px fuzz
+
+    // Reset scroll position whenever new content loads
+    el.scrollTop = 0;
+
+    if (overflows) {
+      el.setAttribute('data-overflows', '');
+      el.classList.remove('is-scrolled-end');
+
+      // Lazy-attach the scroll listener only once
+      if (!this._scrollListenerAttached) {
+        el.addEventListener('scroll', () => this._onVerseScroll(), { passive: true });
+        this._scrollListenerAttached = true;
+      }
+    } else {
+      el.removeAttribute('data-overflows');
+      el.classList.remove('is-scrolled-end');
+    }
+  }
+
+  _onVerseScroll() {
+    const el = this.contentEl;
+    const atEnd = el.scrollTop + el.clientHeight >= el.scrollHeight - 4; // 4px fuzz
+    el.classList.toggle('is-scrolled-end', atEnd);
   }
 
   /* ------------------------------------------------------------------
